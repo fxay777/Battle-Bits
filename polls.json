@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": "Qual gamemode favorito?",
+    "options": ["Survival", "Skyblock", "Prison", "Factions"],
+    "created_by": "Admin",
+    "timestamp": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 2,
+    "title": "Melhor VIP tier?",
+    "options": ["VIP", "MVP", "MVP++", "Famous"],
+    "created_by": "Admin",
+    "timestamp": "2024-01-02T14:30:00"
+  }
+]

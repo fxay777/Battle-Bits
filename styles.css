@@ -1,0 +1,442 @@
+/* ==========================================================================
+   CONFIGURAÇÕES GERAIS E VARIÁVEIS (TEMA VERMELHO FORTE FOSCO)
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+    --red-main: #dc143c;     /* Atualizado para o tom de vermelho idêntico à print */
+    --red-dark: #b81132;     /* Vermelho escuro plano para hover */
+    --red-bg: #291114;       /* Fundo de card em destaque avermelhado plano */
+    --bg-dark: #0d0b14;      /* Fundo geral do site fosco */
+    --bg-card: #1c192c;      /* Fundo dos cards normais */
+    --bg-sidebar: #161324;   /* Fundo da barra lateral */
+    --bg-navbar: #000000;    /* Preto Puro conforme a print */
+    --text-white: #ffffff;
+    --text-muted: #a5a1b8;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   NAVBAR PIXEL-PERFECT (IGUAL À PRINT)
+   ========================================================================== */
+.navbar {
+    background-color: var(--bg-navbar); /* Preto Puro */
+    padding: 20px 0;
+    border-bottom: 1px solid #0d0d13;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: background 0.3s ease;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    color: var(--red-main); /* Todo o texto em Vermelho conforme a print */
+    font-weight: 700;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.nav-logo i {
+    color: var(--red-main); /* Ícone também em vermelho */
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-link {
+    color: #ffffff; /* Links inativos em Branco Puro conforme a print */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: color 0.2s ease;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent; /* Evita que o layout dance no hover */
+}
+
+.nav-link:hover {
+    color: var(--red-main);
+}
+
+/* Aba ativa com linha vermelha idêntica à foto */
+.nav-link.active {
+    color: var(--red-main); 
+    border-bottom-color: var(--red-main);
+}
+
+/* Ícone do carrinho acompanhando o texto */
+.nav-link i {
+    color: #ffffff;
+    margin-right: 5px;
+}
+.nav-link:hover i, .nav-link.active i {
+    color: var(--red-main);
+}
+
+/* Botão em formato de Pílula Perfeita */
+.btn-login {
+    background-color: var(--red-main);
+    color: white !important;
+    padding: 10px 26px;
+    border-radius: 50px; /* Formato pílula idêntico à foto */
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.btn-login:hover {
+    background-color: var(--red-dark);
+}
+
+/* Menu Hamburguer (Mobile) */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.bar {
+    width: 25px;
+    height: 3px;
+    background-color: var(--red-main);
+    transition: 0.3s;
+}
+
+/* ==========================================================================
+   PÁGINA DE INÍCIO (BANNER E CONTAINER)
+   ========================================================================== */
+.banner-section {
+    position: relative;
+    height: 55vh;
+    min-height: 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 55px;
+    overflow: hidden;
+}
+
+.banner-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    filter: brightness(0.4);
+}
+
+.logo-container {
+    z-index: 2;
+    text-align: center;
+}
+
+.server-logo {
+    max-width: 280px;
+    height: auto;
+}
+
+.home-section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.home-section h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--text-white);
+    margin-bottom: 15px;
+}
+
+.home-section p {
+    font-size: 1.2rem;
+    color: #b5b3bc;
+    max-width: 700px;
+    margin: 0 auto 35px auto;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--red-main);
+    color: var(--text-white);
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.cta-button:hover {
+    background-color: var(--red-dark);
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   PÁGINA DE VIPS (ESTRUTURA DA LOJA)
+   ========================================================================== */
+.vips-section {
+    padding: 120px 20px 60px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.store-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Barra Lateral */
+.store-sidebar {
+    width: 260px;
+    background-color: var(--bg-sidebar);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    background-color: var(--red-main);
+    color: var(--text-white);
+    padding: 20px 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-menu li {
+    padding: 12px 15px;
+    color: var(--text-muted);
+    background-color: #211d36;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-menu li.active {
+    background-color: #000000;
+    color: var(--text-white);
+}
+
+/* Grid de Cards */
+.store-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.vips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.vip-card {
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 420px;
+    border: 1px solid #2d2845;
+}
+
+.vip-card.destaque-card {
+    background-color: var(--red-bg);
+    border: 1px solid var(--red-main);
+}
+
+.badge-destaque {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: var(--text-white);
+    color: var(--red-main);
+    font-size: 10px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.vip-image-area {
+    height: 170px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vip-tier-tag {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.tag-famous { color: #00e5ff; }
+.tag-mvpplus { color: #ff00ff; }
+.tag-mvp { color: #39ff14; }
+.tag-vip { color: #ffeb3b; }
+
+.vip-name {
+    color: var(--text-white);
+    font-size: 19px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.vip-price {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.vip-price strong {
+    color: var(--text-white);
+    font-size: 22px;
+    display: block;
+}
+
+/* Ações de Compra */
+.vip-actions {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    gap: 2px;
+}
+
+.btn-info {
+    background-color: var(--red-dark);
+    border: none;
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
+.btn-comprar {
+    flex: 1;
+    background-color: var(--red-main);
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+
+/* Paginação */
+.store-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.page-btn {
+    background-color: var(--red-main);
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.page-btn.active {
+    background-color: #ff3333;
+    box-shadow: 0 0 0 2px var(--text-white);
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================================================== */
+@media (max-width: 900px) {
+    .store-container {
+        flex-direction: column;
+    }
+    .store-sidebar {
+        width: 100%;
+    }
+    .hamburger {
+        display: flex;
+    }
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 60px;
+        flex-direction: column;
+        background-color: var(--bg-navbar);
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        padding: 30px 0;
+        gap: 20px;
+        border-bottom: 1px solid #161322;
+    }
+    .nav-menu.active {
+        left: 0;
+    }
+}

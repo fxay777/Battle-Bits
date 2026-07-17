@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staffs - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --primary: #e63946;
+            --primary-glow: rgba(230, 57, 70, 0.4);
+            --accent: #ff6b6b;
+            --text: #e0e0e0;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius: 16px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            padding: 0 20px;
+        }
+        .navbar.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .nav-logo i {
+            background: none;
+            -webkit-text-fill-color: var(--primary);
+            font-size: 1.6rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            border-radius: 50px;
+            transition: var(--transition);
+            letter-spacing: 0.2px;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            background: rgba(230, 57, 70, 0.2);
+            color: #ff8c94;
+        }
+        .btn-login {
+            background: var(--primary) !important;
+            color: #fff !important;
+            font-weight: 600;
+            padding: 10px 22px !important;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: var(--transition);
+            border-radius: 50px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-login:hover {
+            background: #ff4757 !important;
+            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            transform: translateY(-1px);
+        }
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1001;
+        }
+        .hamburger .bar {
+            width: 26px;
+            height: 3px;
+            background: #fff;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(10, 10, 10, 0.96);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 90px 30px 30px;
+                gap: 8px;
+                transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active {
+                right: 0;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-link {
+                font-size: 1rem;
+                padding: 14px 18px;
+                width: 100%;
+                border-radius: 10px;
+            }
+        }
+
+        /* ============ STATUS BAR ============ */
+        .status-bar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            position: sticky;
+            top: 68px;
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            background: rgba(17, 17, 17, 0.9);
+        }
+        .status-bar .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+        .status-dot.online {
+            background: #ff4757;
+            box-shadow: 0 0 10px #ff4757;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                box-shadow: 0 0 8px currentColor;
+            }
+            50% {
+                box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
+            }
+        }
+        .status-value {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* ============ SEÇÃO STAFFS ============ */
+        .staffs-section {
+            padding: 140px 20px 60px;
+            flex: 1;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .staffs-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .page-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.4rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #ff8c94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Blocos de categorias */
+        .staff-category-block {
+            margin-bottom: 40px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+        .staff-category-block:hover {
+            border-color: var(--border-light);
+        }
+        .category-title {
+            padding: 14px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            color: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+        .staffs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+            padding: 30px;
+            justify-content: center;
+        }
+        .staff-card {
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 20px;
+            transition: var(--transition);
+        }
+        .staff-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            background: var(--bg-card-hover);
+        }
+        .staff-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 18px;
+            text-align: center;
+            word-break: break-all;
+        }
+        .staff-avatar {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .staff-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Cores por cargo */
+        .role-dono .category-title {
+            background: rgba(230, 57, 70, 0.15);
+            border-bottom: 2px solid var(--primary);
+        }
+        .role-dono .staff-card {
+            border-top: 2px solid rgba(230, 57, 70, 0.5);
+        }
+        .role-dono .staff-card:hover {
+            border-top-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.25);
+        }
+
+        .role-gerente .category-title {
+            background: rgba(255, 77, 109, 0.1);
+            border-bottom: 2px solid #ff4d6d;
+        }
+        .role-gerente .staff-card {
+            border-top: 2px solid rgba(255, 77, 109, 0.5);
+        }
+        .role-gerente .staff-card:hover {
+            border-top-color: #ff4d6d;
+            box-shadow: 0 8px 30px rgba(255, 77, 109, 0.2);
+        }
+
+        .role-moderador .category-title {
+            background: rgba(0, 204, 68, 0.1);
+            border-bottom: 2px solid #00cc44;
+        }
+        .role-moderador .staff-card {
+            border-top: 2px solid rgba(0, 204, 68, 0.5);
+        }
+        .role-moderador .staff-card:hover {
+            border-top-color: #00cc44;
+            box-shadow: 0 8px 30px rgba(0, 204, 68, 0.2);
+        }
+
+        .role-helper .category-title {
+            background: rgba(0, 102, 255, 0.1);
+            border-bottom: 2px solid #0066ff;
+        }
+        .role-helper .staff-card {
+            border-top: 2px solid rgba(0, 102, 255, 0.5);
+        }
+        .role-helper .staff-card:hover {
+            border-top-color: #0066ff;
+            box-shadow: 0 8px 30px rgba(0, 102, 255, 0.2);
+        }
+
+        /* ============ FOOTER ============ */
+        .main-footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 40px 20px 20px;
+            margin-top: auto;
+        }
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+        .footer-brand h2 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .footer-brand h2 i {
+            color: var(--primary);
+        }
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-width: 450px;
+        }
+        .footer-links h3 {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .footer-links ul {
+            list-style: none;
+        }
+        .footer-links ul li {
+            margin-bottom: 10px;
+        }
+        .footer-links ul li a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .footer-links ul li a:hover {
+            color: var(--primary);
+        }
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .footer-bottom i {
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        /* ============ ANIMAÇÕES ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                text-align: center;
+            }
+            .footer-brand p {
+                margin: 0 auto;
+            }
+            .footer-links ul li a {
+                justify-content: center;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-cube"></i> Batlle Bits
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link active">Staffs</a></li>
+                <li><a href="/novidades" class="nav-link">Novidades</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li><a href="/cadastro" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+        <div class="container">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>Servidor <span class="status-value">Online</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <span><span class="status-value" id="playerCount">247</span> jogadores</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <span>Versão <span class="status-value">1.7 & 1.8</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <section class="staffs-section">
+        <div class="container">
+            <div class="staffs-header reveal">
+                <h1 class="page-title"><i class="fas fa-users-cog"></i> Nossa Equipe</h1>
+                <p class="page-subtitle">Conheça os staffs que mantêm o servidor ativo 24/7</p>
+            </div>
+
+            <div class="staff-category-block role-dono reveal">
+                <div class="category-title"><i class="fas fa-crown"></i> Dono</div>
+                <div class="staffs-grid">
+                    <div class="staff-card">
+                        <div class="staff-name">Dono_Exemplo1</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Dono">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="staff-category-block role-gerente reveal">
+                <div class="category-title"><i class="fas fa-star"></i> Gerente</div>
+                <div class="staffs-grid">
+                    <div class="staff-card">
+                        <div class="staff-name">Gerente_Exemplo1</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Gerente">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="staff-category-block role-moderador reveal">
+                <div class="category-title"><i class="fas fa-shield-haltered"></i> Moderador</div>
+                <div class="staffs-grid">
+                    <div class="staff-card">
+                        <div class="staff-name">Mod_Exemplo1</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Moderador">
+                        </div>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-name">Mod_Exemplo2</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="Avatar Moderador">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="staff-category-block role-helper reveal">
+                <div class="category-title"><i class="fas fa-hands-helping"></i> Helper</div>
+                <div class="staffs-grid">
+                    <div class="staff-card">
+                        <div class="staff-name">Helper_Exemplo1</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Helper">
+                        </div>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-name">Helper_Exemplo2</div>
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="Avatar Helper">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2><i class="fas fa-server"></i> Batlle Bits</h2>
+                <p>Se você acredita em nosso objetivo de proporcionar uma melhor experiência de jogo e deseja fazer parte dessa jornada conosco, considere fazer uma doação hoje. Juntos, podemos continuar construindo e fortalecendo esta comunidade incrível.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Acessar</h3>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Início</a></li>
+                    <li><a href="/carrinho"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                    <li><a href="/forum"><i class="fas fa-comments"></i> Fórum</a></li>
+                    <li><a href="/vips"><i class="fas fa-star"></i> Loja de VIPs</a></li>
+                    <li><a href="#"><i class="fas fa-globe"></i> Nosso Site</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>Redes Sociais</h3>
+                <ul>
+                    <li><a href="#"><i class="fab fa-discord"></i> Discord</a></li>
+                    <li><a href="#"><i class="fab fa-tiktok"></i> TikTok</a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i> YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits &copy; 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    <script>
+        // ============ HAMBURGER MENU ============
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // ============ NAVBAR SCROLL ============
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // ============ SIMULAÇÃO JOGADORES ONLINE ============
+        const playerCountEl = document.getElementById('playerCount');
+        setInterval(() => {
+            const base = 230;
+            const variation = Math.floor(Math.random() * 35) - 8;
+            playerCountEl.textContent = Math.max(180, Math.min(310, base + variation));
+        }, 8000);
+
+        // ============ SCROLL REVEAL ============
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

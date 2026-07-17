@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fórum - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --primary: #e63946;
+            --primary-glow: rgba(230, 57, 70, 0.4);
+            --accent: #ff6b6b;
+            --accent-glow: rgba(255, 107, 107, 0.35);
+            --gold: #ff4757;
+            --gold-glow: rgba(255, 71, 87, 0.4);
+            --text: #e0e0e0;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --radius-lg: 22px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            padding: 0 20px;
+        }
+        .navbar.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .nav-logo i {
+            background: none;
+            -webkit-text-fill-color: var(--primary);
+            font-size: 1.6rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            border-radius: 50px;
+            transition: var(--transition);
+            position: relative;
+            letter-spacing: 0.2px;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            background: rgba(230, 57, 70, 0.2);
+            color: #ff8c94;
+        }
+        .btn-login {
+            background: var(--primary) !important;
+            color: #fff !important;
+            font-weight: 600;
+            padding: 10px 22px !important;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: var(--transition);
+            border-radius: 50px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-login:hover {
+            background: #ff4757 !important;
+            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            transform: translateY(-1px);
+        }
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1001;
+        }
+        .hamburger .bar {
+            width: 26px;
+            height: 3px;
+            background: #fff;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(10, 10, 10, 0.96);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 90px 30px 30px;
+                gap: 8px;
+                transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active {
+                right: 0;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-link {
+                font-size: 1rem;
+                padding: 14px 18px;
+                width: 100%;
+                border-radius: 10px;
+            }
+        }
+
+        /* ============ STATUS BAR ============ */
+        .status-bar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            position: sticky;
+            top: 68px;
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            background: rgba(17, 17, 17, 0.9);
+        }
+        .status-bar .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+        .status-dot.online {
+            background: #ff4757;
+            box-shadow: 0 0 10px #ff4757;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                box-shadow: 0 0 8px currentColor;
+            }
+            50% {
+                box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
+            }
+        }
+        .status-value {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* ============ CONTEÚDO DO FÓRUM ============ */
+        .forum-section {
+            padding: 140px 20px 60px; /* espaço para navbar + status */
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .forum-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Botão voltar */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: rgba(230, 57, 70, 0.08);
+            width: fit-content;
+        }
+        .btn-back:hover {
+            background: rgba(230, 57, 70, 0.15);
+            color: #fff;
+        }
+
+        /* Cartão de categoria */
+        .forum-category {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .forum-category:hover {
+            border-color: var(--border-light);
+        }
+        .category-header {
+            background: rgba(230, 57, 70, 0.05);
+            padding: 18px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .category-header i {
+            color: var(--primary);
+        }
+
+        /* Item de canal (página inicial) */
+        .forum-item {
+            display: flex;
+            align-items: center;
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease, transform 0.2s;
+            cursor: pointer;
+            gap: 20px;
+        }
+        .forum-item:last-child {
+            border-bottom: none;
+        }
+        .forum-item:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+        .forum-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(230, 57, 70, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--primary);
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .forum-item:hover .forum-icon {
+            background: rgba(230, 57, 70, 0.2);
+            transform: scale(1.05);
+        }
+        .forum-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .forum-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Lista de posts */
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 24px;
+        }
+        .post-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px 24px;
+            transition: var(--transition);
+        }
+        .post-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border-light);
+        }
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .post-author {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .post-content {
+            font-size: 0.9rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .no-posts {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 0.95rem;
+        }
+
+        /* Formulário */
+        .comment-form-container {
+            padding: 24px;
+            background: rgba(230, 57, 70, 0.03);
+            border-top: 1px solid var(--border);
+        }
+        .form-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .forum-input,
+        .forum-textarea {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .forum-input:focus,
+        .forum-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        .forum-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .btn-submit {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: var(--transition);
+            box-shadow: 0 0 15px var(--primary-glow);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-submit:hover {
+            background: #ff4757;
+            box-shadow: 0 0 25px rgba(230, 57, 70, 0.6);
+            transform: translateY(-1px);
+        }
+        .auth-alert {
+            background: rgba(230, 57, 70, 0.08);
+            border: 1px solid rgba(230, 57, 70, 0.25);
+            padding: 16px 20px;
+            border-radius: 10px;
+            color: #ff8c94;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .auth-alert i {
+            font-size: 1.2rem;
+        }
+
+        /* ============ FOOTER ============ */
+        .main-footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 24px 20px;
+            margin-top: auto;
+        }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .footer-bottom i {
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        /* ============ ANIMAÇÕES ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .forum-section {
+                padding: 120px 16px 40px;
+            }
+            .category-header {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-cube"></i> Batlle Bits
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link active">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li><a href="/novidades" class="nav-link">Novidades</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li>
+                    <a href="#" class="btn-login" id="loginBtn" onclick="toggleAuth()">
+                        <i class="fas fa-user"></i> Cadastre-se
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+        <div class="container">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>Servidor <span class="status-value">Online</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <span><span class="status-value" id="playerCount">247</span> jogadores</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <span>Versão <span class="status-value">1.7 & 1.8</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO DO FÓRUM -->
+    <section class="forum-section">
+        <div class="forum-container reveal" id="forumContainer">
+            <!-- Preenchido dinamicamente -->
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits © 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    <script>
+        // ============ HAMBURGER MENU ============
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // ============ NAVBAR SCROLL ============
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // ============ SISTEMA DE FÓRUM ============
+        let isLoggedIn = false; // Simulação de login
+        const forumData = {
+            ideias: [],
+            report: [],
+            duvidas: [],
+            novidades: []
+        };
+
+        function showMainCategories() {
+            const container = document.getElementById('forumContainer');
+            container.innerHTML = `
+                <div class="forum-category">
+                    <div class="category-header">
+                        <i class="fas fa-comments"></i> Canais da Comunidade
+                    </div>
+                    <div class="forum-item" onclick="openCategory('ideias', 'Aba Ideias', 'Sugira melhorias para o nosso servidor')">
+                        <div class="forum-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div class="forum-info">
+                            <div class="forum-title">Aba Ideias</div>
+                            <div class="forum-desc">Deixe sua sugestão ou projeto para melhorar a nossa comunidade.</div>
+                        </div>
+                    </div>
+                    <div class="forum-item" onclick="openCategory('report', 'Aba Report', 'Denuncie bugs ou jogadores mal-intencionados')">
+                        <div class="forum-icon"><i class="fas fa-bug"></i></div>
+                        <div class="forum-info">
+                            <div class="forum-title">Aba Report</div>
+                            <div class="forum-desc">Encontrou trapaceiros ou falhas no mapa? Reporte direto aqui para a Staff.</div>
+                        </div>
+                    </div>
+                    <div class="forum-item" onclick="openCategory('duvidas', 'Aba Dúvidas', 'Central de ajuda ao jogador')">
+                        <div class="forum-icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="forum-info">
+                            <div class="forum-title">Aba Dúvidas</div>
+                            <div class="forum-desc">Tem alguma dúvida sobre mecânicas, compras ou comandos? Pergunte aqui.</div>
+                        </div>
+                    </div>
+                    <div class="forum-item" onclick="openCategory('novidades', 'Aba Novidades', 'Informativos e atualizações oficiais')">
+                        <div class="forum-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="forum-info">
+                            <div class="forum-title">Aba Novidades</div>
+                            <div class="forum-desc">Fique por dentro de tudo o que nossa equipe adicionou ou alterou na rede.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openCategory(key, title, subtitle) {
+            const container = document.getElementById('forumContainer');
+            const posts = forumData[key] || [];
+
+            let postsHTML = '';
+            if (posts.length === 0) {
+                postsHTML = `<div class="no-posts"><i class="far fa-folder-open" style="margin-right: 8px;"></i> Nenhuma publicação ainda. Seja o primeiro a postar!</div>`;
+            } else {
+                posts.forEach(post => {
+                    postsHTML += `
+                        <div class="post-card">
+                            <div class="post-meta">
+                                <span>Tópico: <strong>${post.title}</strong></span>
+                                <span>Por: <span class="post-author">${post.author}</span> • ${post.date}</span>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            let formHTML = '';
+            if (isLoggedIn) {
+                formHTML = `
+                    <div class="comment-form-container">
+                        <div class="form-title"><i class="fas fa-pen"></i> Criar nova publicação</div>
+                        <div class="input-group">
+                            <input type="text" id="postTitle" class="forum-input" placeholder="Título da sua publicação...">
+                            <textarea id="postContent" class="forum-textarea" placeholder="Escreva seu texto aqui..."></textarea>
+                            <button class="btn-submit" onclick="submitPost('${key}', '${title}', '${subtitle}')"><i class="fas fa-paper-plane"></i> Publicar</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                formHTML = `
+                    <div class="comment-form-container">
+                        <div class="auth-alert">
+                            <i class="fas fa-lock"></i>
+                            <span>Você precisa estar <strong>logado</strong> para publicar. Clique em "Cadastre-se" para simular o login.</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <a class="btn-back" onclick="showMainCategories()"><i class="fas fa-arrow-left"></i> Voltar para os canais</a>
+                <div class="forum-category">
+                    <div class="category-header">
+                        <i class="fas fa-folder-open"></i> ${title} <span style="font-size:0.75rem; color:var(--text-muted); margin-left:8px; text-transform:none;">— ${subtitle}</span>
+                    </div>
+                    <div class="posts-list">
+                        ${postsHTML}
+                    </div>
+                    ${formHTML}
+                </div>
+            `;
+        }
+
+        function submitPost(key, title, subtitle) {
+            const titleInput = document.getElementById('postTitle')?.value.trim();
+            const contentInput = document.getElementById('postContent')?.value.trim();
+            if (!titleInput || !contentInput) {
+                alert('Preencha todos os campos antes de publicar.');
+                return;
+            }
+            forumData[key].push({
+                author: 'Jogador_Logado',
+                date: 'Agora mesmo',
+                title: titleInput,
+                content: contentInput
+            });
+            openCategory(key, title, subtitle);
+        }
+
+        function toggleAuth() {
+            isLoggedIn = !isLoggedIn;
+            const btn = document.getElementById('loginBtn');
+            if (isLoggedIn) {
+                btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout (simulado)';
+                btn.style.background = '#2e2a47';
+            } else {
+                btn.innerHTML = '<i class="fas fa-user"></i> Cadastre-se';
+                btn.style.background = '';
+            }
+            // Se estiver dentro de uma categoria, atualiza a interface
+            const currentCategory = document.querySelector('.category-header');
+            if (currentCategory) {
+                // Recarrega a categoria atual (se aplicável) – simplificado
+                const headerText = currentCategory.textContent.trim();
+                if (headerText.includes('Ideias')) openCategory('ideias', 'Aba Ideias', 'Sugira melhorias');
+                else if (headerText.includes('Report')) openCategory('report', 'Aba Report', 'Denuncie bugs');
+                else if (headerText.includes('Dúvidas')) openCategory('duvidas', 'Aba Dúvidas', 'Central de ajuda');
+                else if (headerText.includes('Novidades')) openCategory('novidades', 'Aba Novidades', 'Informativos oficiais');
+            }
+        }
+
+        // ============ SIMULAÇÃO JOGADORES ONLINE ============
+        const playerCountEl = document.getElementById('playerCount');
+        setInterval(() => {
+            const base = 230;
+            const variation = Math.floor(Math.random() * 35) - 8;
+            playerCountEl.textContent = Math.max(180, Math.min(310, base + variation));
+        }, 8000);
+
+        // ============ SCROLL REVEAL ============
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Inicialização
+        window.onload = showMainCategories;
+    </script>
+</body>
+</html>

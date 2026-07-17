@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início - Batlle Bits</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-server"></i> Batlle Bits
+            </div>
+            
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="/" class="nav-link active">Início</a></li>
+                <li class="nav-item"><a href="/vips" class="nav-link">VIPs</a></li>
+                <li class="nav-item"><a href="/forum" class="nav-link">Fórum</a></li>
+                <li class="nav-item"><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li class="nav-item"><a href="/novidades" class="nav-link">Novidades</a></li>
+                <li class="nav-item"><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li class="nav-item"><a href="/cadastro" class="nav-link btn-login">Cadastre-se</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="banner-section">
+        <img src="{{ url_for('static', filename='img/banner-bg.jpg') }}" alt="Banner Background" class="banner-img">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/server-logo.png') }}" alt="Batlle Bits Logo" class="server-logo">
+        </div>
+    </header>
+
+    <section class="home-section">
+        <div class="container">
+            <h1>CONECTE-SE À BATLLE BITS</h1>
+            <p>Explore mundos incríveis, dispute o topo do rank com seus amigos e garanta a melhor experiência com nossos pacotes exclusivos.</p>
+            <a href="/vips" class="cta-button"><i class="fas fa-shopping-basket"></i> IR PARA A LOJA VIP</a>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

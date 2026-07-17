@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batlle Bits - Servidor Minecraft</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+            --primary: #e63946;
+            --primary-glow: rgba(230, 57, 70, 0.4);
+            --accent: #ff6b6b;
+            --accent-glow: rgba(255, 107, 107, 0.35);
+            --gold: #ff4757;
+            --gold-glow: rgba(255, 71, 87, 0.4);
+            --text: #e0e0e0;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --radius-lg: 22px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            padding: 0 20px;
+        }
+        .navbar.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-logo i {
+            background: none;
+            -webkit-text-fill-color: var(--primary);
+            font-size: 1.6rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 6px;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            border-radius: 50px;
+            transition: var(--transition);
+            position: relative;
+            letter-spacing: 0.2px;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .nav-link.active {
+            background: rgba(230, 57, 70, 0.2);
+            color: #ff8c94;
+        }
+        .btn-login {
+            background: var(--primary) !important;
+            color: #fff !important;
+            font-weight: 600;
+            padding: 10px 22px !important;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: var(--transition);
+        }
+        .btn-login:hover {
+            background: #ff4757 !important;
+            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            transform: translateY(-1px);
+        }
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1001;
+        }
+        .hamburger .bar {
+            width: 26px;
+            height: 3px;
+            background: #fff;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: rgba(10, 10, 10, 0.96);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 90px 30px 30px;
+                gap: 8px;
+                transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active {
+                right: 0;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-link {
+                font-size: 1rem;
+                padding: 14px 18px;
+                width: 100%;
+                border-radius: 10px;
+            }
+        }
+
+        /* ============ BANNER ============ */
+        .banner-section {
+            position: relative;
+            width: 100%;
+            height: 520px;
+            overflow: hidden;
+            margin-top: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5) saturate(1.2);
+            transform: scale(1.03);
+            transition: transform 8s ease;
+        }
+        .banner-section:hover .banner-img {
+            transform: scale(1.08);
+        }
+        .banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(10, 10, 10, 0.9) 100%);
+            z-index: 1;
+        }
+        .logo-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: floatLogo 3.5s ease-in-out infinite;
+        }
+        @keyframes floatLogo {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+        .server-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 60px rgba(230, 57, 70, 0.5), 0 0 120px rgba(0, 0, 0, 0.6);
+            transition: var(--transition);
+        }
+        .server-logo:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 80px rgba(230, 57, 70, 0.7), 0 0 150px rgba(0, 0, 0, 0.7);
+        }
+        .banner-ip-badge {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 50px;
+            padding: 10px 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .banner-ip-badge:hover {
+            background: rgba(230, 57, 70, 0.3);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+        .banner-ip-badge i {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        .banner-ip-badge .copy-tip {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 0;
+            margin-left: 4px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .banner-ip-badge:hover .copy-tip {
+            opacity: 1;
+        }
+        @media (max-width: 600px) {
+            .banner-section {
+                height: 380px;
+            }
+            .server-logo {
+                width: 110px;
+                height: 110px;
+            }
+            .banner-ip-badge {
+                font-size: 0.85rem;
+                padding: 8px 18px;
+            }
+        }
+
+        /* ============ SEÇÕES GERAIS ============ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .section {
+            padding: 80px 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+        .section-tag {
+            display: inline-block;
+            background: rgba(230, 57, 70, 0.15);
+            color: #ff8c94;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            padding: 6px 18px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(230, 57, 70, 0.3);
+        }
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.6rem;
+            letter-spacing: -1px;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        .section-title span {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* ============ STATUS BAR ============ */
+        .status-bar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 0;
+            position: sticky;
+            top: 68px;
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            background: rgba(17, 17, 17, 0.9);
+        }
+        .status-bar .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+        .status-dot.online {
+            background: #ff4757;
+            box-shadow: 0 0 10px #ff4757;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                box-shadow: 0 0 8px currentColor;
+            }
+            50% {
+                box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
+            }
+        }
+        .status-value {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* ============ CARDS DE FEATURES ============ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 28px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0;
+            filter: blur(50px);
+            transition: 0.6s ease;
+        }
+        .feature-card:hover::before {
+            opacity: 0.15;
+            top: -30px;
+            right: -30px;
+        }
+        .feature-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            background: var(--bg-card-hover);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+            transition: var(--transition);
+        }
+        .feature-icon.red {
+            background: rgba(230, 57, 70, 0.15);
+            color: #ff8c94;
+        }
+        .feature-icon.orange {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff6b6b;
+        }
+        .feature-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ============ SEÇÃO DE VIPs EM DESTAQUE ============ */
+        .vip-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+        .vip-preview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px 24px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .vip-preview-card.featured {
+            border-color: rgba(230, 57, 70, 0.4);
+            box-shadow: 0 0 40px rgba(230, 57, 70, 0.1);
+        }
+        .vip-preview-card.featured::after {
+            content: 'MAIS POPULAR';
+            position: absolute;
+            top: 16px;
+            right: -28px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 5px 36px;
+            transform: rotate(45deg);
+            z-index: 1;
+        }
+        .vip-preview-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            border-color: var(--border-light);
+            background: var(--bg-card-hover);
+        }
+        .vip-tier {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .vip-price {
+            font-size: 2.4rem;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            margin: 12px 0;
+        }
+        .vip-price span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .vip-perks {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 2;
+        }
+        .vip-perks li i {
+            color: var(--accent);
+            margin-right: 8px;
+            font-size: 0.75rem;
+        }
+        .vip-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+        }
+        .vip-btn.primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        .vip-btn.primary:hover {
+            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            transform: scale(1.02);
+        }
+        .vip-btn.outline {
+            background: transparent;
+            border-color: var(--border-light);
+            color: #fff;
+        }
+        .vip-btn.outline:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .vip-btn.gold {
+            background: linear-gradient(135deg, #e63946 0%, #c0392b 100%);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 0 25px var(--gold-glow);
+        }
+        .vip-btn.gold:hover {
+            box-shadow: 0 0 45px rgba(230, 57, 70, 0.7);
+            transform: scale(1.02);
+        }
+
+        /* ============ SEÇÃO POR QUE JOGAR ============ */
+        .why-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        .why-image-wrapper {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            aspect-ratio: 16/10;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .why-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s ease;
+        }
+        .why-image-wrapper:hover img {
+            transform: scale(1.04);
+        }
+        .why-image-wrapper .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .play-overlay i {
+            font-size: 3.5rem;
+            color: #fff;
+            opacity: 0.8;
+            transition: var(--transition);
+            filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+        }
+        .play-overlay:hover i {
+            opacity: 1;
+            transform: scale(1.2);
+            color: var(--primary);
+        }
+        .why-content h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.2rem;
+            color: #fff;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        .why-content h2 span {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .why-content p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .why-list {
+            list-style: none;
+            display: grid;
+            gap: 14px;
+        }
+        .why-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .why-list li i {
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 800px) {
+            .why-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* ============ ESTATÍSTICAS ============ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 2.6rem;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+        }
+
+        /* ============ CTA FINAL ============ */
+        .cta-section {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 60px 30px;
+            position: relative;
+            overflow: hidden;
+            margin: 0 24px;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.06;
+            filter: blur(80px);
+        }
+        .cta-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 2.2rem;
+            color: #fff;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+        }
+        .cta-section p {
+            color: var(--text-muted);
+            margin: 12px 0 28px;
+            position: relative;
+            z-index: 1;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        .cta-button.primary-cta {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+        .cta-button.primary-cta:hover {
+            box-shadow: 0 0 50px rgba(230, 57, 70, 0.7);
+            transform: translateY(-2px);
+        }
+        .cta-button.secondary-cta {
+            background: transparent;
+            border-color: var(--border-light);
+            color: #fff;
+        }
+        .cta-button.secondary-cta:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 40px;
+        }
+        .footer .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .footer .social-links a {
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+        .footer .social-links a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ============ ANIMAÇÕES DE SCROLL ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============ TOAST DE CÓPIA ============ */
+        .toast-copy {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e1e1e;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 9999;
+            border: 1px solid var(--primary);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: 0.4s ease;
+            pointer-events: none;
+        }
+        .toast-copy.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- ============ NAVBAR ============ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-cube"></i> Batlle Bits
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item"><a href="/" class="nav-link active">Início</a></li>
+                <li class="nav-item"><a href="/vips" class="nav-link">VIPs</a></li>
+                <li class="nav-item"><a href="/forum" class="nav-link">Fórum</a></li>
+                <li class="nav-item"><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li class="nav-item"><a href="/novidades" class="nav-link">Novidades</a></li>
+                <li class="nav-item"><a href="/cadastro" class="nav-link btn-login">Cadastre-se</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ BANNER ============ -->
+    <section class="banner-section" id="banner">
+        <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Banner Batlle Bits" class="banner-img">
+        <div class="banner-overlay"></div>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="Logo Batlle Bits" class="server-logo">
+        </div>
+        <div class="banner-ip-badge" id="ipBadge" title="Clique para copiar o IP">
+            <i class="fas fa-play"></i> <span id="serverIP">batlebits.com</span>
+            <span class="copy-tip">(copiar)</span>
+        </div>
+    </section>
+
+    <!-- ============ STATUS BAR ============ -->
+    <div class="status-bar">
+        <div class="container">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>Servidor <span class="status-value">Online</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <span><span class="status-value" id="playerCount">247</span> jogadores online</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <span>Versão <span class="status-value">1.7 & 1.8</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-clock" style="color: #ff6b6b;"></i>
+                <span>Último wipe: <span class="status-value">15/06/2026</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SEÇÃO HOME PRINCIPAL ============ -->
+    <section class="section" id="home">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-tag">⚡ Bem-vindo ao futuro</span>
+                <h1 class="section-title">A melhor experiência <span>Minecraft</span> te espera</h1>
+                <p class="section-subtitle">Junte-se a milhares de jogadores no servidor mais completo do Brasil. VIPs exclusivos, eventos épicos e uma comunidade incrível.</p>
+            </div>
+
+            <!-- Cards de Features -->
+            <div class="features-grid reveal">
+                <div class="feature-card">
+                    <div class="feature-icon red"><i class="fas fa-crown"></i></div>
+                    <h3>VIPs Exclusivos</h3>
+                    <p>Poderes, kits e vantagens únicas que transformam sua jogabilidade.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon orange"><i class="fas fa-comments"></i></div>
+                    <h3>Fórum Ativo</h3>
+                    <p>Participe de discussões, tire dúvidas e faça amizades na nossa comunidade.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon red"><i class="fas fa-shield-haltered"></i></div>
+                    <h3>Staff Dedicada</h3>
+                    <p>Moderadores e administradores sempre prontos para ajudar você.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon orange"><i class="fas fa-calendar-star"></i></div>
+                    <h3>Eventos Semanais</h3>
+                    <p>Competições, sorteios e guerras de clãs com prêmios incríveis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SEÇÃO POR QUE JOGAR ============ -->
+    <section class="section" style="background: rgba(17, 17, 17, 0.5);">
+        <div class="container">
+            <div class="why-grid reveal">
+                <div class="why-image-wrapper">
+                    <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Gameplay Batlle Bits" style="width:100%;height:100%;object-fit:cover;">
+                    <div class="play-overlay">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                </div>
+                <div class="why-content">
+                    <span class="section-tag">🌟 Diferenciais</span>
+                    <h2>Por que escolher o <span>Batlle Bits</span>?</h2>
+                    <p>Não somos apenas mais um servidor. Oferecemos uma experiência completa com sistema de clãs, economia balanceada, proteção de territórios e muito mais.</p>
+                    <ul class="why-list">
+                        <li><i class="fas fa-check-circle"></i> <span><strong>Sem Pay-to-Win:</strong> VIPs oferecem vantagens cosméticas e de qualidade de vida.</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span><strong>Servidor 24/7:</strong> Infraestrutura de ponta com 99.9% de uptime.</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span><strong>Anticheat Avançado:</strong> Jogue limpo, nosso sistema detecta e pune hackers.</span></li>
+                        <li><i class="fas fa-check-circle"></i> <span><strong>Atualizações Frequentes:</strong> Novos conteúdos e eventos a cada mês.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ============ VIPs EM DESTAQUE ============ -->
+    <section class="section" style="background: rgba(17, 17, 17, 0.5);">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-tag">💎 Planos</span>
+                <h2 class="section-title">VIPs em <span>Destaque</span></h2>
+                <p class="section-subtitle">Escolha o plano perfeito para você e eleve sua jogabilidade ao próximo nível.</p>
+            </div>
+            <div class="vip-preview-grid reveal">
+                <!-- VIP Básico -->
+                <div class="vip-preview-card">
+                    <div class="vip-tier" style="color:#ff8c94;">⚡ VIP BÁSICO</div>
+                    <div class="vip-price">R$19<span>,90/mês</span></div>
+                    <ul class="vip-perks">
+                        <li><i class="fas fa-check"></i> Tag exclusiva no chat</li>
+                        <li><i class="fas fa-check"></i> Kit semanal de recursos</li>
+                        <li><i class="fas fa-check"></i> 2 homes extras</li>
+                        <li><i class="fas fa-check"></i> Acesso ao /fly</li>
+                    </ul>
+                    <a href="/vips" class="vip-btn outline">Saiba mais</a>
+                </div>
+                <!-- VIP Premium (mais popular) -->
+                <div class="vip-preview-card featured">
+                    <div class="vip-tier" style="color:#ff6b6b;">👑 VIP PREMIUM</div>
+                    <div class="vip-price">R$39<span>,90/mês</span></div>
+                    <ul class="vip-perks">
+                        <li><i class="fas fa-check"></i> Todos os benefícios do Básico</li>
+                        <li><i class="fas fa-check"></i> Kit diário de recursos</li>
+                        <li><i class="fas fa-check"></i> 5 homes extras</li>
+                        <li><i class="fas fa-check"></i> Acesso ao /fly e /god</li>
+                        <li><i class="fas fa-check"></i> Prefixo colorido no chat</li>
+                    </ul>
+                    <a href="/vips" class="vip-btn gold">Quero este!</a>
+                </div>
+                <!-- VIP Master -->
+                <div class="vip-preview-card">
+                    <div class="vip-tier" style="color:#ff8c94;">💜 VIP MASTER</div>
+                    <div class="vip-price">R$69<span>,90/mês</span></div>
+                    <ul class="vip-perks">
+                        <li><i class="fas fa-check"></i> Todos os benefícios do Premium</li>
+                        <li><i class="fas fa-check"></i> Kit épico diário</li>
+                        <li><i class="fas fa-check"></i> 10 homes extras</li>
+                        <li><i class="fas fa-check"></i> Acesso ao /fly, /god e /vanish</li>
+                        <li><i class="fas fa-check"></i> Cargo exclusivo no Discord</li>
+                    </ul>
+                    <a href="/vips" class="vip-btn outline">Saiba mais</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA FINAL ============ -->
+    <section class="section">
+        <div class="container">
+            <div class="cta-section reveal">
+                <span class="section-tag">🚀 Pronto para jogar?</span>
+                <h2>Junte-se ao <span style="background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Batlle Bits</span> hoje mesmo!</h2>
+                <p>O IP já está copiado? Entre agora e descubra por que somos o servidor favorito da comunidade.</p>
+                <div class="cta-buttons">
+                    <a href="/cadastro" class="cta-button primary-cta"><i class="fas fa-user-plus"></i> Criar Conta</a>
+                    <a href="/vips" class="cta-button secondary-cta"><i class="fas fa-crown"></i> Ver Planos VIP</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="social-links">
+                <a href="#" title="Discord"><i class="fab fa-discord"></i></a>
+                <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="#" title="Twitter/X"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <p>&copy; 2026 Batlle Bits. Todos os direitos reservados. | Não afiliado à Mojang/Microsoft.</p>
+        </div>
+    </footer>
+
+    <!-- ============ TOAST ============ -->
+    <div class="toast-copy" id="toastCopy">📋 IP copiado! Cole no seu Minecraft.</div>
+
+    <script>
+        // ============ HAMBURGER MENU ============
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // ============ NAVBAR SCROLL EFFECT ============
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ============ COPIAR IP ============
+        const ipBadge = document.getElementById('ipBadge');
+        const serverIP = document.getElementById('serverIP');
+        const toastCopy = document.getElementById('toastCopy');
+        ipBadge.addEventListener('click', () => {
+            const ipText = serverIP.textContent.trim();
+            navigator.clipboard.writeText(ipText).then(() => {
+                toastCopy.classList.add('show');
+                setTimeout(() => {
+                    toastCopy.classList.remove('show');
+                }, 2200);
+            }).catch(() => {
+                const tempInput = document.createElement('input');
+                tempInput.value = ipText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                toastCopy.classList.add('show');
+                setTimeout(() => {
+                    toastCopy.classList.remove('show');
+                }, 2200);
+            });
+        });
+
+        // ============ SCROLL REVEAL ============
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ============ CONTADOR ANIMADO DE ESTATÍSTICAS ============
+        const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseFloat(el.getAttribute('data-count'));
+                    const isDecimal = target % 1 !== 0;
+                    const duration = 1800;
+                    const startTime = performance.now();
+
+                    function updateCount(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        const current = target * eased;
+                        el.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCount);
+                        } else {
+                            el.textContent = isDecimal ? target.toFixed(1) : target;
+                        }
+                    }
+                    requestAnimationFrame(updateCount);
+                    countObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.4 });
+        statNumbers.forEach(el => countObserver.observe(el));
+
+        // ============ SIMULAÇÃO DE JOGADORES ONLINE ============
+        const playerCountEl = document.getElementById('playerCount');
+        const basePlayers = 230;
+        setInterval(() => {
+            const variation = Math.floor(Math.random() * 35) - 8;
+            const newCount = Math.max(180, Math.min(310, basePlayers + variation));
+            playerCountEl.textContent = newCount;
+        }, 8000);
+
+        console.log('🚀 Batlle Bits - Página inicial carregada com sucesso!');
+        console.log('💡 Dica: Clique no IP no banner para copiá-lo.');
+    </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - Battle Bits</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0911;
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .navbar {
+            background-color: #000;
+            padding: 15px 20px;
+            border-bottom: 2px solid #dc143c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc143c;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #dc143c;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #dc143c;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .cart-items {
+            background: linear-gradient(135deg, #1a0f1e 0%, #2d1a2e 100%);
+            border: 1px solid #dc143c;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-icon {
+            font-size: 40px;
+            color: #dc143c;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .item-type {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .item-price {
+            font-size: 14px;
+            color: #00ff00;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 120px;
+        }
+
+        .qty-display {
+            padding: 5px 10px;
+            background-color: #0b0911;
+            border: 1px solid #dc143c;
+            border-radius: 5px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .btn-remove {
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-remove:hover {
+            background-color: #dc143c;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-cart i {
+            font-size: 64px;
+            color: #666;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .empty-cart p {
+            color: #aaa;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .cart-summary {
+            background: linear-gradient(135deg, #1a0f1e 0%, #2d1a2e 100%);
+            border: 2px solid #dc143c;
+            border-radius: 10px;
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #dc143c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .summary-item.total {
+            border-top: 1px solid #333;
+            padding-top: 12px;
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #dc143c 0%, #ff4500 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-checkout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+        }
+
+        .btn-checkout:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-continue-shopping {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: #dc143c;
+            border: 2px solid #dc143c;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-continue-shopping:hover {
+            background-color: #dc143c;
+            color: #fff;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #00ff00;
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
+        }
+
+        .notification.error {
+            background-color: #ff4500;
+            color: #fff;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cart-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                flex-wrap: wrap;
+            }
+
+            .cart-summary {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-shopping-cart"></i> CARRINHO
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/loja">Loja</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-shopping-cart"></i> Seu Carrinho
+        </h1>
+
+        {% if cart|length > 0 %}
+            <div class="cart-content">
+                <!-- ITENS DO CARRINHO -->
+                <div class="cart-items">
+                    {% for item in cart %}
+                    <div class="cart-item" data-item-id="{{ item.id }}" data-item-type="{{ item.type }}">
+                        <div class="item-icon">
+                            <i class="{{ item.icon if item.get('icon') else 'fas fa-cube' }}"></i>
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">{{ item.name }}</div>
+                            <div class="item-type">{{ 'VIP' if item.type == 'vip' else 'ITEM' }}</div>
+                        </div>
+                        <div class="item-price">R$ {{ "%.2f"|format(item.subtotal) }}</div>
+                        <div class="item-controls">
+                            <span class="qty-display">x{{ item.quantity }}</span>
+                            <button class="btn-remove" onclick="removeFromCart('{{ item.id }}', '{{ item.type }}')">
+                                <i class="fas fa-trash"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- RESUMO DO CARRINHO -->
+                <div class="cart-summary">
+                    <div class="summary-title">
+                        <i class="fas fa-receipt"></i> Resumo
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Itens:</span>
+                        <span>{{ cart|length }}</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Subtotal:</span>
+                        <span>R$ {{ "%.2f"|format(total) }}</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Taxas:</span>
+                        <span>R$ 0,00</span>
+                    </div>
+
+                    <div class="summary-item total">
+                        <span>Total:</span>
+                        <span id="totalPrice">R$ {{ "%.2f"|format(total) }}</span>
+                    </div>
+
+                    <form method="POST" action="/checkout">
+                        <button type="submit" class="btn-checkout">
+                            <i class="fas fa-credit-card"></i> Ir para Pagamento
+                        </button>
+                    </form>
+
+                    <a href="/loja" class="btn-continue-shopping">
+                        <i class="fas fa-arrow-left"></i> Continuar Comprando
+                    </a>
+
+                    <button class="btn-continue-shopping" onclick="clearCart()" style="border-color: #ff4500; color: #ff4500; margin-top: 5px;">
+                        <i class="fas fa-trash"></i> Limpar Carrinho
+                    </button>
+                </div>
+            </div>
+        {% else %}
+            <div class="cart-items">
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Seu carrinho está vazio</p>
+                    <a href="/loja" class="btn-checkout" style="text-decoration: none; display: inline-block; width: auto; padding: 12px 30px;">
+                        <i class="fas fa-shop"></i> Ir para a Loja
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Remover do carrinho
+        function removeFromCart(itemId, itemType) {
+            fetch('/api/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: itemId,
+                    type: itemType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Item removido do carrinho', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    showNotification('Erro ao remover item', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Erro ao remover item', 'error');
+            });
+        }
+
+        // Limpar carrinho
+        function clearCart() {
+            if (confirm('Tem certeza que deseja limpar todo o carrinho?')) {
+                fetch('/api/cart/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Carrinho limpo', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Erro ao limpar carrinho', 'error');
+                });
+            }
+        }
+
+        // Mostrar notificação
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

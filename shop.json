@@ -1,0 +1,135 @@
+{
+  "vips": [
+    {
+      "id": "vip-1",
+      "name": "VIP",
+      "price": 9.90,
+      "duration": "30 dias",
+      "description": "Acesso a comandos VIP básicos",
+      "features": [
+        "Tag [VIP] no chat",
+        "Acesso a lojas especiais",
+        "Desconto de 10% na loja",
+        "Comando /home",
+        "Criar até 2 casas"
+      ],
+      "icon": "fas fa-crown"
+    },
+    {
+      "id": "vip-2",
+      "name": "MVP",
+      "price": 19.90,
+      "duration": "30 dias",
+      "description": "Acesso premium com mais benefícios",
+      "features": [
+        "Tag [MVP] no chat (Cor Dourada)",
+        "Tudo do VIP +",
+        "Desconto de 20% na loja",
+        "Comando /tpa",
+        "Criar até 4 casas",
+        "Fly em lobby"
+      ],
+      "icon": "fas fa-gem"
+    },
+    {
+      "id": "vip-3",
+      "name": "MVP++",
+      "price": 34.90,
+      "duration": "30 dias",
+      "description": "Nível máximo de VIP",
+      "features": [
+        "Tag [MVP++] no chat (Cor Roxo)",
+        "Tudo do MVP +",
+        "Desconto de 30% na loja",
+        "Comando /hat",
+        "Criar até 6 casas",
+        "Fly em todos servidores",
+        "Acesso a eventos exclusivos"
+      ],
+      "icon": "fas fa-star"
+    },
+    {
+      "id": "vip-4",
+      "name": "FAMOUS",
+      "price": 49.90,
+      "duration": "30 dias",
+      "description": "Status de celebridade no servidor",
+      "features": [
+        "Tag [FAMOUS] no chat (Cor Vermelha)",
+        "Tudo do MVP++ +",
+        "Desconto de 40% na loja",
+        "Prefix customizável",
+        "Criar casas ilimitadas",
+        "Acesso VIP a todas áreas",
+        "Prioridade em fila"
+      ],
+      "icon": "fas fa-trophy"
+    }
+  ],
+  "shop": [
+    {
+      "id": "item-1",
+      "name": "Cash 1.000",
+      "price": 4.90,
+      "category": "moeda",
+      "description": "1.000 de Cash em jogo",
+      "icon": "fas fa-coins"
+    },
+    {
+      "id": "item-2",
+      "name": "Cash 5.000",
+      "price": 19.90,
+      "category": "moeda",
+      "description": "5.000 de Cash em jogo",
+      "icon": "fas fa-coins"
+    },
+    {
+      "id": "item-3",
+      "name": "Cash 10.000",
+      "price": 34.90,
+      "category": "moeda",
+      "description": "10.000 de Cash em jogo",
+      "icon": "fas fa-coins"
+    },
+    {
+      "id": "item-4",
+      "name": "Crate Comum",
+      "price": 2.90,
+      "category": "crate",
+      "description": "1x Crate com itens comuns",
+      "icon": "fas fa-box"
+    },
+    {
+      "id": "item-5",
+      "name": "Crate Rara",
+      "price": 7.90,
+      "category": "crate",
+      "description": "1x Crate com itens raros",
+      "icon": "fas fa-box-open"
+    },
+    {
+      "id": "item-6",
+      "name": "Crate Lendária",
+      "price": 19.90,
+      "category": "crate",
+      "description": "1x Crate com itens lendários",
+      "icon": "fas fa-gem"
+    },
+    {
+      "id": "item-7",
+      "name": "Pet Dragão",
+      "price": 14.90,
+      "category": "pet",
+      "description": "Pet Dragão para seguir você",
+      "icon": "fas fa-feather"
+    },
+    {
+      "id": "item-8",
+      "name": "Skill Reset",
+      "price": 5.90,
+      "category": "utilitario",
+      "description": "Resete suas skills uma vez",
+      "icon": "fas fa-sync"
+    }
+  ]
+}
