@@ -311,9 +311,17 @@
         <div class="navbar-brand">
             <i class="fas fa-shopping-cart"></i> CARRINHO
         </div>
-        <div class="nav-links">
+        <div class="nav-links" style="display: flex; gap: 20px; align-items: center;">
             <a href="/">Home</a>
             <a href="/loja">Loja</a>
+            <a href="/vips">VIPs</a>
+            <a href="/forum">Fórum</a>
+            <a href="/staffs">Staffs</a>
+            {% if session.get('username') %}
+                <a href="/logout" style="background: #dc143c; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; font-size: 13px;"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
+            {% else %}
+                <a href="/login" style="background: #dc143c; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; font-size: 13px;">Entrar</a>
+            {% endif %}
         </div>
     </nav>
 
