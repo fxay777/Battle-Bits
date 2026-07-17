@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pagamento - Battle Bits</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
+        /* ===== CORES ATUALIZADAS: AZUL E PRETO ===== */
         :root {
-            --bg-dark: #0b0911;
-            --bg-card: #1a0f1e;
-            --bg-card-to: #2d1a2e;
-            --primary: #dc143c;
-            --primary-hover: #ff4500;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-to: #1a1a2e;
+            --primary: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
             --text-color: #fff;
-            --text-muted: #aaa;
-            --green: #00ff00;
-            --border-color: #dc143c;
+            --text-muted: #9a9ab0;
+            --border-color: rgba(13, 110, 253, 0.25);
+            --border-solid: #0d6efd;
+            --radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -27,6 +33,7 @@
 
         body {
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
@@ -34,29 +41,46 @@
             flex-direction: column;
         }
 
+        /* ============ NAVBAR ============ */
         .navbar {
             background-color: #000;
             padding: 15px 20px;
-            border-bottom: 2px solid var(--primary);
+            border-bottom: 2px solid var(--border-solid);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .navbar-brand {
             font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar-brand i {
+            -webkit-text-fill-color: var(--primary);
         }
 
         .nav-links a {
-            color: #fff;
+            color: var(--text-muted);
             text-decoration: none;
-            transition: color 0.3s;
+            transition: var(--transition);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 50px;
         }
 
         .nav-links a:hover {
-            color: var(--primary);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .container {
@@ -68,12 +92,12 @@
 
         .page-title {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary);
             margin-bottom: 30px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .checkout-grid {
@@ -88,83 +112,113 @@
             }
         }
 
+        /* ============ PAYMENT BOX ============ */
         .payment-box {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-to) 100%);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: var(--radius);
             padding: 30px;
-            box-shadow: 0 0 20px rgba(220, 20, 60, 0.15);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(4px);
+            transition: var(--transition);
+        }
+        .payment-box:hover {
+            border-color: var(--primary);
         }
 
         .payment-methods {
             display: flex;
             gap: 15px;
             margin-bottom: 30px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
         }
 
         .method-btn {
             flex: 1;
             padding: 12px;
-            background-color: #0b0911;
-            border: 1px solid #444;
+            background-color: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-muted);
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
 
         .method-btn:hover {
             border-color: var(--primary);
             color: #fff;
+            background: rgba(13, 110, 253, 0.05);
         }
 
         .method-btn.active {
-            background-color: var(--primary);
+            background: var(--primary);
             border-color: var(--primary);
             color: #fff;
-            box-shadow: 0 0 15px rgba(220, 20, 60, 0.4);
+            box-shadow: 0 0 20px var(--primary-glow);
         }
 
         .payment-content {
-            margin-bottom: 25px;
+            margin-bottom: 10px;
         }
 
         .payment-panel {
             display: none;
+            animation: fadeSlide 0.4s ease-out;
         }
-
         .payment-panel.active {
             display: block;
         }
 
-        /* Pix Styling */
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============ PIX PANEL ============ */
         .pix-container {
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
+        }
+
+        .pix-container > p {
+            color: var(--text-muted);
+            font-size: 14px;
         }
 
         .qr-code-box {
             background: #fff;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: var(--radius);
             display: inline-block;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
         }
 
         .pix-timer {
             font-size: 14px;
             color: var(--primary);
-            font-weight: bold;
+            font-weight: 700;
+            background: rgba(13, 110, 253, 0.08);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+        .pix-timer i {
+            margin-right: 6px;
         }
 
         .pix-copia-cola {
@@ -174,6 +228,11 @@
             gap: 8px;
             text-align: left;
         }
+        .pix-copia-cola label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
 
         .pix-input-wrapper {
             display: flex;
@@ -182,56 +241,76 @@
 
         .pix-hash-input {
             flex-grow: 1;
-            padding: 12px;
-            background-color: #0b0911;
-            border: 1px solid #444;
+            padding: 12px 14px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
             color: #fff;
-            border-radius: 5px;
+            border-radius: 10px;
             font-size: 12px;
             font-family: monospace;
             outline: none;
+            transition: var(--transition);
+        }
+        .pix-hash-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
         .btn-copy {
-            padding: 12px 20px;
-            background-color: var(--primary);
+            padding: 12px 24px;
+            background: var(--primary);
             color: #fff;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 50px;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
+            box-shadow: 0 0 15px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
         .btn-copy:hover {
-            background-color: var(--primary-hover);
+            background: var(--primary-hover);
+            box-shadow: 0 0 25px rgba(13, 110, 253, 0.6);
+            transform: translateY(-1px);
         }
 
-        /* Credit Card Form */
+        /* ============ CREDIT CARD PANEL ============ */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .form-group label i {
+            margin-right: 6px;
+            color: var(--primary);
         }
 
         .form-control {
             width: 100%;
-            padding: 12px;
-            background-color: #0b0911;
-            border: 1px solid #444;
+            padding: 12px 16px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
             color: #fff;
-            border-radius: 5px;
+            border-radius: 10px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: var(--transition);
+            font-family: inherit;
         }
 
         .form-control:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        .form-control::placeholder {
+            color: #555;
         }
 
         .form-row {
@@ -240,22 +319,29 @@
             gap: 15px;
         }
 
-        /* Summary Styling */
+        /* ============ SUMMARY BOX ============ */
         .summary-box {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-to) 100%);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
             padding: 25px;
             height: fit-content;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 80px;
+            transition: var(--transition);
+        }
+        .summary-box:hover {
+            border-color: var(--primary);
         }
 
         .summary-title {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--primary);
             margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -265,6 +351,18 @@
             max-height: 250px;
             overflow-y: auto;
             margin-bottom: 20px;
+            padding-right: 4px;
+        }
+        .summary-items::-webkit-scrollbar {
+            width: 4px;
+        }
+        .summary-items::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 10px;
+        }
+        .summary-items::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
         }
 
         .summary-item {
@@ -272,10 +370,9 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             font-size: 14px;
         }
-
         .summary-item:last-child {
             border-bottom: none;
         }
@@ -286,7 +383,7 @@
         }
 
         .item-name {
-            font-weight: bold;
+            font-weight: 600;
             color: #fff;
         }
 
@@ -296,59 +393,87 @@
         }
 
         .item-price {
-            color: var(--green);
-            font-weight: bold;
+            color: var(--accent);
+            font-weight: 700;
         }
 
         .summary-total {
             display: flex;
             justify-content: space-between;
             font-size: 20px;
-            font-weight: bold;
-            color: var(--green);
-            border-top: 1px solid #333;
+            font-weight: 800;
+            color: var(--accent);
+            border-top: 1px solid var(--border-color);
             padding-top: 15px;
             margin-bottom: 25px;
         }
 
         .btn-submit-order {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             color: #fff;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 50px;
+            font-weight: 700;
             font-size: 16px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: all 0.3s;
-            box-shadow: 0 0 15px rgba(220, 20, 60, 0.3);
+            transition: var(--transition);
+            box-shadow: 0 0 20px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-submit-order:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 25px rgba(220, 20, 60, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.6);
         }
 
+        /* ============ TOAST ============ */
         .toast-copy {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: var(--green);
-            color: #000;
+            background: var(--primary);
+            color: #fff;
             padding: 15px 25px;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-weight: 600;
             z-index: 1000;
             opacity: 0;
-            transition: opacity 0.3s;
+            transform: translateX(40px);
+            transition: all 0.4s ease;
             pointer-events: none;
+            box-shadow: 0 4px 20px var(--primary-glow);
         }
 
         .toast-copy.show {
             opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============ RESPONSIVO ============ */
+        @media (max-width: 600px) {
+            .payment-methods {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .pix-input-wrapper {
+                flex-direction: column;
+            }
+            .summary-box {
+                position: static;
+            }
+            .navbar-brand {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -359,7 +484,7 @@
             <i class="fas fa-credit-card"></i> FINALIZAR COMPRA
         </div>
         <div class="nav-links">
-            <a href="/loja"><i class="fas fa-arrow-left"></i> Voltar à Loja</a>
+            <a href="/vips"><i class="fas fa-arrow-left"></i> Voltar à aba vips</a>
         </div>
     </nav>
 
@@ -369,7 +494,7 @@
         </h1>
 
         <form method="POST" id="checkoutForm">
-            <input type="hidden" name="payment_method" id="paymentMethodInput" value="Pix">
+            <input type="hidden" name="payment_method" id="paymentMethodInput" value="Pix" />
 
             <div class="checkout-grid">
                 <!-- FORM DE PAGAMENTO -->
@@ -387,53 +512,38 @@
                         <!-- PAINEL PIX -->
                         <div class="payment-panel active" id="panelPix">
                             <div class="pix-container">
-                                <p style="font-size: 15px; margin-bottom: 10px;">Escaneie o código QR abaixo ou use o Pix Copia e Cola:</p>
-                                
+                                <p>Escaneie o código QR abaixo ou use o Pix Copia e Cola:</p>
+
                                 <div class="qr-code-box">
-                                    <!-- Dynamic SVG QR Code Simulation -->
+                                    <!-- QR Code Estilizado -->
                                     <svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
-                                        <!-- QR Code Background -->
                                         <rect width="180" height="180" fill="#ffffff" />
-                                        
-                                        <!-- Outer Position Markers -->
-                                        <!-- Top-Left -->
                                         <rect x="10" y="10" width="50" height="50" fill="#000000" />
                                         <rect x="20" y="20" width="30" height="30" fill="#ffffff" />
                                         <rect x="25" y="25" width="20" height="20" fill="#000000" />
-                                        
-                                        <!-- Top-Right -->
                                         <rect x="120" y="10" width="50" height="50" fill="#000000" />
                                         <rect x="130" y="20" width="30" height="30" fill="#ffffff" />
                                         <rect x="135" y="25" width="20" height="20" fill="#000000" />
-                                        
-                                        <!-- Bottom-Left -->
                                         <rect x="10" y="120" width="50" height="50" fill="#000000" />
                                         <rect x="20" y="130" width="30" height="30" fill="#ffffff" />
                                         <rect x="25" y="135" width="20" height="20" fill="#000000" />
-
-                                        <!-- Random simulated QR blocks -->
                                         <rect x="70" y="10" width="10" height="20" fill="#000000" />
                                         <rect x="90" y="10" width="20" height="10" fill="#000000" />
                                         <rect x="70" y="40" width="30" height="10" fill="#000000" />
                                         <rect x="100" y="30" width="10" height="30" fill="#000000" />
-                                        
                                         <rect x="10" y="70" width="20" height="10" fill="#000000" />
                                         <rect x="40" y="70" width="10" height="30" fill="#000000" />
                                         <rect x="20" y="90" width="20" height="10" fill="#000000" />
-                                        
                                         <rect x="70" y="70" width="40" height="40" fill="#000000" />
                                         <rect x="80" y="80" width="20" height="20" fill="#ffffff" />
                                         <rect x="85" y="85" width="10" height="10" fill="#000000" />
-
                                         <rect x="120" y="70" width="20" height="15" fill="#000000" />
                                         <rect x="150" y="70" width="20" height="20" fill="#000000" />
                                         <rect x="130" y="90" width="20" height="10" fill="#000000" />
                                         <rect x="120" y="110" width="15" height="30" fill="#000000" />
-                                        
                                         <rect x="70" y="120" width="10" height="30" fill="#000000" />
                                         <rect x="90" y="130" width="20" height="20" fill="#000000" />
                                         <rect x="70" y="160" width="40" height="10" fill="#000000" />
-                                        
                                         <rect x="140" y="120" width="10" height="40" fill="#000000" />
                                         <rect x="160" y="130" width="10" height="30" fill="#000000" />
                                         <rect x="120" y="160" width="40" height="10" fill="#000000" />
@@ -445,9 +555,9 @@
                                 </div>
 
                                 <div class="pix-copia-cola">
-                                    <label>Pix Copia e Cola:</label>
+                                    <label><i class="fas fa-paste"></i> Pix Copia e Cola:</label>
                                     <div class="pix-input-wrapper">
-                                        <input type="text" class="pix-hash-input" id="pixHash" readonly value="00020101021226830014br.gov.bcb.pix2561pix.battlebits.com/checkout/pay/39a29d01f92c1038485293845c485289f0a2d21">
+                                        <input type="text" class="pix-hash-input" id="pixHash" readonly value="00020101021226830014br.gov.bcb.pix2561pix.battlebits.com/checkout/pay/39a29d01f92c1038485293845c485289f0a2d21" />
                                         <button type="button" class="btn-copy" onclick="copyPixCode()"><i class="far fa-copy"></i> Copiar</button>
                                     </div>
                                 </div>
@@ -458,22 +568,22 @@
                         <div class="payment-panel" id="panelCard">
                             <div class="form-group">
                                 <label for="cardName"><i class="far fa-user"></i> Nome no Cartão</label>
-                                <input type="text" id="cardName" class="form-control" placeholder="Como está impresso no cartão">
+                                <input type="text" id="cardName" class="form-control" placeholder="Como está impresso no cartão" />
                             </div>
 
                             <div class="form-group">
                                 <label for="cardNumber"><i class="far fa-credit-card"></i> Número do Cartão</label>
-                                <input type="text" id="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19">
+                                <input type="text" id="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" />
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="cardExpiry"><i class="far fa-calendar-alt"></i> Expiração</label>
-                                    <input type="text" id="cardExpiry" class="form-control" placeholder="MM/AA" maxlength="5">
+                                    <input type="text" id="cardExpiry" class="form-control" placeholder="MM/AA" maxlength="5" />
                                 </div>
                                 <div class="form-group">
                                     <label for="cardCvv"><i class="fas fa-lock"></i> CVV</label>
-                                    <input type="text" id="cardCvv" class="form-control" placeholder="123" maxlength="4">
+                                    <input type="text" id="cardCvv" class="form-control" placeholder="123" maxlength="4" />
                                 </div>
                             </div>
                         </div>
@@ -537,7 +647,6 @@
                 panelPix.classList.add('active');
                 panelCard.classList.remove('active');
 
-                // Remove required attributes
                 cardName.required = false;
                 cardNumber.required = false;
                 cardExpiry.required = false;
@@ -548,7 +657,6 @@
                 panelPix.classList.remove('active');
                 panelCard.classList.add('active');
 
-                // Add required attributes for credit card
                 cardName.required = true;
                 cardNumber.required = true;
                 cardExpiry.required = true;
@@ -560,7 +668,7 @@
         function copyPixCode() {
             const copyText = document.getElementById("pixHash");
             copyText.select();
-            copyText.setSelectionRange(0, 99999); // For mobile devices
+            copyText.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(copyText.value);
 
             const toast = document.getElementById('toast');
@@ -570,10 +678,10 @@
             }, 3000);
         }
 
-        // Countdown timer logic
-        let duration = 600; // 10 minutes in seconds
+        // Countdown timer
+        let duration = 600;
         const timerEl = document.getElementById('timer');
-        
+
         const countdown = setInterval(() => {
             let minutes = Math.floor(duration / 60);
             let seconds = duration % 60;
@@ -591,9 +699,9 @@
             }
         }, 1000);
 
-        // Card field masking helpers
+        // Card field masking
         const cardNumberInput = document.getElementById('cardNumber');
-        cardNumberInput.addEventListener('input', function (e) {
+        cardNumberInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             let formatted = '';
             for (let i = 0; i < value.length; i++) {
@@ -604,7 +712,7 @@
         });
 
         const cardExpiryInput = document.getElementById('cardExpiry');
-        cardExpiryInput.addEventListener('input', function (e) {
+        cardExpiryInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 2) {
                 e.target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
@@ -614,7 +722,7 @@
         });
 
         const cardCvvInput = document.getElementById('cardCvv');
-        cardCvvInput.addEventListener('input', function (e) {
+        cardCvvInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
         });
     </script>

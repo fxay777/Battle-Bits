@@ -8,16 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ===== CORES ATUALIZADAS: AZUL E PRETO ===== */
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
-            --bg-card-hover: #1a1a1a;
-            --primary: #e63946;
-            --primary-glow: rgba(230, 57, 70, 0.4);
-            --accent: #ff6b6b;
-            --accent-glow: rgba(255, 107, 107, 0.35);
-            --gold: #ff4757;
-            --gold-glow: rgba(255, 71, 87, 0.4);
+            --bg-card-hover: #1a1a2e;
+            --primary: #0d6efd;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
+            --accent-glow: rgba(79, 195, 247, 0.35);
             --text: #e0e0e0;
             --text-muted: #9a9ab0;
             --border: rgba(255, 255, 255, 0.06);
@@ -38,11 +37,15 @@
 
         body {
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
             color: var(--text);
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* ============ NAVBAR ============ */
@@ -76,7 +79,7 @@
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -114,8 +117,8 @@
             background: rgba(255, 255, 255, 0.05);
         }
         .nav-link.active {
-            background: rgba(230, 57, 70, 0.2);
-            color: #ff8c94;
+            background: rgba(13, 110, 253, 0.15);
+            color: var(--accent);
         }
         .btn-login {
             background: var(--primary) !important;
@@ -133,8 +136,8 @@
             gap: 8px;
         }
         .btn-login:hover {
-            background: #ff4757 !important;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: var(--primary-hover, #0b5ed7) !important;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-1px);
         }
         .hamburger {
@@ -215,8 +218,8 @@
             animation: pulseDot 2s infinite;
         }
         .status-dot.online {
-            background: #ff4757;
-            box-shadow: 0 0 10px #ff4757;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
         @keyframes pulseDot {
             0%,
@@ -234,7 +237,7 @@
 
         /* ============ CONTEÚDO DO FÓRUM ============ */
         .forum-section {
-            padding: 140px 20px 60px; /* espaço para navbar + status */
+            padding: 140px 20px 60px;
             flex: 1;
             display: flex;
             justify-content: center;
@@ -260,11 +263,11 @@
             transition: var(--transition);
             padding: 8px 16px;
             border-radius: 50px;
-            background: rgba(230, 57, 70, 0.08);
+            background: rgba(13, 110, 253, 0.08);
             width: fit-content;
         }
         .btn-back:hover {
-            background: rgba(230, 57, 70, 0.15);
+            background: rgba(13, 110, 253, 0.15);
             color: #fff;
         }
 
@@ -280,7 +283,7 @@
             border-color: var(--border-light);
         }
         .category-header {
-            background: rgba(230, 57, 70, 0.05);
+            background: rgba(13, 110, 253, 0.05);
             padding: 18px 24px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
@@ -317,7 +320,7 @@
         .forum-icon {
             width: 50px;
             height: 50px;
-            background: rgba(230, 57, 70, 0.1);
+            background: rgba(13, 110, 253, 0.1);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -328,7 +331,7 @@
             transition: var(--transition);
         }
         .forum-item:hover .forum-icon {
-            background: rgba(230, 57, 70, 0.2);
+            background: rgba(13, 110, 253, 0.2);
             transform: scale(1.05);
         }
         .forum-title {
@@ -389,7 +392,7 @@
         /* Formulário */
         .comment-form-container {
             padding: 24px;
-            background: rgba(230, 57, 70, 0.03);
+            background: rgba(13, 110, 253, 0.03);
             border-top: 1px solid var(--border);
         }
         .form-title {
@@ -445,16 +448,16 @@
             gap: 8px;
         }
         .btn-submit:hover {
-            background: #ff4757;
-            box-shadow: 0 0 25px rgba(230, 57, 70, 0.6);
+            background: #0b5ed7;
+            box-shadow: 0 0 25px rgba(13, 110, 253, 0.6);
             transform: translateY(-1px);
         }
         .auth-alert {
-            background: rgba(230, 57, 70, 0.08);
-            border: 1px solid rgba(230, 57, 70, 0.25);
+            background: rgba(13, 110, 253, 0.08);
+            border: 1px solid rgba(13, 110, 253, 0.25);
             padding: 16px 20px;
             border-radius: 10px;
-            color: #ff8c94;
+            color: var(--accent);
             font-size: 0.9rem;
             display: flex;
             align-items: center;
@@ -514,15 +517,14 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="/" class="nav-logo">
-                <i class="fas fa-cube"></i> Batlle Bits
+                <i class="fas fa-cube"></i> Battle Bits
             </a>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="/" class="nav-link">Início</a></li>
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link active">Fórum</a></li>
-                <li><a href="/staffs" class="nav-link">Staffs</a></li>
-                <li><a href="/novidades" class="nav-link">Novidades</a></li>
-                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>               
+                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 <li>
                     <a href="#" class="btn-login" id="loginBtn" onclick="toggleAuth()">
                         <i class="fas fa-user"></i> Cadastre-se
@@ -545,11 +547,11 @@
                 <span>Servidor <span class="status-value">Online</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <i class="fas fa-users" style="color: var(--accent);"></i>
                 <span><span class="status-value" id="playerCount">247</span> jogadores</span>
             </div>
             <div class="status-item">
-                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <i class="fas fa-star" style="color: var(--primary);"></i>
                 <span>Versão <span class="status-value">1.7 & 1.8</span></span>
             </div>
         </div>
@@ -727,7 +729,6 @@
             // Se estiver dentro de uma categoria, atualiza a interface
             const currentCategory = document.querySelector('.category-header');
             if (currentCategory) {
-                // Recarrega a categoria atual (se aplicável) – simplificado
                 const headerText = currentCategory.textContent.trim();
                 if (headerText.includes('Ideias')) openCategory('ideias', 'Aba Ideias', 'Sugira melhorias');
                 else if (headerText.includes('Report')) openCategory('report', 'Aba Report', 'Denuncie bugs');

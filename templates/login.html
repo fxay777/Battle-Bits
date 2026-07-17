@@ -11,9 +11,9 @@
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
-            --primary: #e63946;
-            --primary-glow: rgba(230, 57, 70, 0.4);
-            --accent: #ff6b6b;
+            --primary: #0d6efd;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
             --text: #e0e0e0;
             --text-muted: #9a9ab0;
             --border: rgba(255, 255, 255, 0.06);
@@ -31,6 +31,7 @@
 
         body {
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
             color: var(--text);
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
@@ -72,7 +73,7 @@
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -122,8 +123,8 @@
             gap: 8px;
         }
         .nav-link.btn-login:hover {
-            background: #ff4757 !important;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: #0b5ed7 !important;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-1px);
         }
         .hamburger {
@@ -204,8 +205,8 @@
             animation: pulseDot 2s infinite;
         }
         .status-dot.online {
-            background: #ff4757;
-            box-shadow: 0 0 10px #ff4757;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
         @keyframes pulseDot {
             0%,
@@ -228,7 +229,7 @@
             align-items: center;
             justify-content: center;
             padding: 160px 20px 60px;
-            background: radial-gradient(circle at 50% 30%, rgba(230, 57, 70, 0.06) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 30%, rgba(13, 110, 253, 0.06) 0%, transparent 60%);
         }
         .login-container {
             background: var(--bg-card);
@@ -246,7 +247,7 @@
             font-weight: 800;
             font-size: 2rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -338,8 +339,8 @@
             gap: 10px;
         }
         .btn-login-submit:hover {
-            background: #ff4757;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: #0b5ed7;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-2px);
         }
         .btn-login-submit:active {
@@ -358,13 +359,13 @@
             transition: color 0.3s;
         }
         .cadastro-link a:hover {
-            color: #ff8c94;
+            color: var(--accent);
             text-decoration: underline;
         }
         .erro-message {
-            background: rgba(230, 57, 70, 0.1);
-            border: 1px solid rgba(230, 57, 70, 0.3);
-            color: #ff8c94;
+            background: rgba(13, 110, 253, 0.08);
+            border: 1px solid rgba(13, 110, 253, 0.3);
+            color: var(--accent);
             padding: 12px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -374,8 +375,8 @@
             gap: 10px;
         }
         .form-info {
-            background: rgba(230, 57, 70, 0.05);
-            border: 1px solid rgba(230, 57, 70, 0.2);
+            background: rgba(13, 110, 253, 0.05);
+            border: 1px solid rgba(13, 110, 253, 0.2);
             padding: 14px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -418,9 +419,8 @@
                 <li><a href="/" class="nav-link">Início</a></li>
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
-                <li><a href="/staffs" class="nav-link">Staffs</a></li>
-                <li><a href="/novidades" class="nav-link">Novidades</a></li>
-                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>               
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 <li>
                     {% if is_admin %}
                         <a href="/logout" class="nav-link btn-login"><i class="fas fa-sign-out-alt"></i> Logout {{ username }}</a>
@@ -445,11 +445,11 @@
                 <span>Servidor <span class="status-value">Online</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <i class="fas fa-users" style="color: var(--accent);"></i>
                 <span><span class="status-value" id="playerCount">247</span> jogadores</span>
             </div>
             <div class="status-item">
-                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <i class="fas fa-star" style="color: var(--primary);"></i>
                 <span>Versão <span class="status-value">1.21</span></span>
             </div>
         </div>

@@ -43,7 +43,6 @@ def carrinho():
     cart = session.get('cart', {})
     cart_items = list(cart.values())
     
-    # Calculate subtotal for each item and grand total
     total = 0.0
     for item in cart_items:
         item['subtotal'] = float(item['price']) * int(item['quantity'])
@@ -155,7 +154,6 @@ def cadastro():
         senha = request.form.get('senha', '')
         confirmar_senha = request.form.get('confirmar_senha', '')
         
-        # Validations
         if not usuario or len(usuario) < 3:
             erro = 'Nome de usuário deve ter no mínimo 3 caracteres'
         elif not email or '@' not in email:
@@ -165,7 +163,6 @@ def cadastro():
         elif senha != confirmar_senha:
             erro = 'As senhas não correspondem'
         else:
-            # Check if user already exists
             existing_user = database.get_user_by_username(usuario)
             if existing_user:
                 erro = 'Nome de usuário já está em uso'
@@ -182,8 +179,6 @@ def cadastro():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erro = None
-    
-    # Check if there is a pending action message (like from checkout)
     info_msg = request.args.get('msg')
     
     if request.method == 'POST':
@@ -199,7 +194,6 @@ def login():
                 session['username'] = user['username']
                 session['admin'] = bool(user['is_admin'])
                 
-                # Redirect to checkout if cart is not empty and they came from checkout redirect
                 if info_msg == 'checkout' and session.get('cart'):
                     return redirect(url_for('checkout'))
                 
@@ -214,61 +208,49 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-# Cart AJAX APIs
+# ============================================================
+#   APIs DO CARRINHO (CORRIGIDAS – SEM DEPENDÊNCIA DO shop.json)
+# ============================================================
+
 @app.route('/api/cart/add', methods=['POST'])
 def cart_add():
+    """
+    Adiciona um item ao carrinho usando os dados enviados pelo front‑end.
+    Não valida contra shop.json, então aceita qualquer tipo (vip, clantag, medalha, etc.)
+    """
     data = request.json or {}
     item_id = data.get('id')
-    item_type = data.get('type')  # 'vip' or 'item'
-    qty = int(data.get('quantity', 1))
-    
-    if not item_id or not item_type:
-        return jsonify({'success': False, 'message': 'Parâmetros inválidos'}), 400
-        
-    try:
-        with open('shop.json', 'r', encoding='utf-8') as f:
-            shop_data = json.load(f)
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Erro ao ler dados da loja: {e}'}), 500
-        
-    # Search for item details
-    item_details = None
-    if item_type == 'vip':
-        for v in shop_data.get('vips', []):
-            if v['id'] == item_id:
-                item_details = v
-                break
-    else:
-        for item in shop_data.get('shop', []):
-            if item['id'] == item_id:
-                item_details = item
-                break
-                
-    if not item_details:
-        return jsonify({'success': False, 'message': 'Item não encontrado na loja'}), 404
-        
+    item_type = data.get('type')          # 'vip', 'clantag', 'medalha', etc.
+    quantity = int(data.get('quantity', 1))
+    name = data.get('name')
+    price = data.get('price')
+
+    # Validação mínima
+    if not all([item_id, item_type, name, price is not None]):
+        return jsonify({'success': False, 'message': 'Dados incompletos'}), 400
+
     cart = session.get('cart', {})
     cart_key = f"{item_id}_{item_type}"
-    
+
     if cart_key in cart:
-        cart[cart_key]['quantity'] += qty
+        cart[cart_key]['quantity'] += quantity
     else:
         cart[cart_key] = {
-            'id': item_details['id'],
-            'name': item_details['name'],
-            'price': float(item_details['price']),
+            'id': item_id,
+            'name': name,
+            'price': float(price),
             'type': item_type,
-            'quantity': qty,
-            'icon': item_details.get('icon', 'fas fa-cube')
+            'quantity': quantity,
+            'icon': data.get('icon', 'fas fa-cube')
         }
-        
+
     session['cart'] = cart
     session.modified = True
-    
+
     total_items = sum(item['quantity'] for item in cart.values())
     return jsonify({
         'success': True,
-        'message': f"{item_details['name']} adicionado ao carrinho!",
+        'message': f"{name} adicionado ao carrinho!",
         'total_items': total_items
     })
 
@@ -301,7 +283,10 @@ def cart_clear():
     session.modified = True
     return jsonify({'success': True})
 
-# Checkout & Payment System
+# ============================================================
+#   CHECKOUT E PAGAMENTO
+# ============================================================
+
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if not session.get('user_id'):
@@ -320,7 +305,6 @@ def checkout():
     if request.method == 'POST':
         payment_method = request.form.get('payment_method', 'Pix')
         
-        # Save to database
         items_json = json.dumps(cart_items, ensure_ascii=False)
         database.create_purchase(
             user_id=session['user_id'],
@@ -330,11 +314,8 @@ def checkout():
             status="Aprovado"
         )
         
-        # Clear cart
         session['cart'] = {}
         session.modified = True
-        
-        # Save checkout user for the success screen
         session['last_checkout_user'] = session.get('username')
         
         return redirect(url_for('checkout_success'))

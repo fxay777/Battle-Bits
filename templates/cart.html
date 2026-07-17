@@ -1,12 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carrinho - Battle Bits</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- SDK DO MERCADO PAGO (Para quando for integrar a API) -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
     <style>
+        /* ===== VARIÁVEIS (PRETO E AZUL) ===== */
+        :root {
+            --primary: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --primary-glow: rgba(13, 110, 253, 0.3);
+            --bg-body: #0a0a0a;
+            --bg-panel: #111111;
+            --bg-input: #1a1a1a;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #9a9ab0;
+            --text-dark: #666666;
+            --radius: 12px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,293 +36,516 @@
         }
 
         body {
-            background-color: #0b0911;
-            color: #fff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.03) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
         }
 
+        /* ============ NAVBAR ============ */
         .navbar {
-            background-color: #000;
-            padding: 15px 20px;
-            border-bottom: 2px solid #dc143c;
+            background: #000;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--primary);
+            height: 68px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 100;
         }
-
         .navbar-brand {
-            font-size: 24px;
-            font-weight: bold;
-            color: #dc143c;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff, #4fc3f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
         }
-
+        .navbar-brand i {
+            -webkit-text-fill-color: var(--primary);
+        }
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 6px;
             align-items: center;
+            flex-wrap: wrap;
         }
-
         .nav-links a {
-            color: #fff;
+            color: var(--text-muted);
             text-decoration: none;
-            transition: color 0.3s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 50px;
+            transition: var(--transition);
         }
-
         .nav-links a:hover {
-            color: #dc143c;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .page-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #dc143c;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .cart-content {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .cart-items {
-            background: linear-gradient(135deg, #1a0f1e 0%, #2d1a2e 100%);
-            border: 1px solid #dc143c;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .cart-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid #333;
-            align-items: center;
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-icon {
-            font-size: 40px;
-            color: #dc143c;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .item-info {
-            flex-grow: 1;
-        }
-
-        .item-name {
-            font-size: 16px;
-            font-weight: bold;
             color: #fff;
-            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.05);
         }
-
-        .item-type {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .nav-links .btn-login {
+            background: var(--primary);
+            color: #fff !important;
+            box-shadow: 0 0 15px var(--primary-glow);
         }
-
-        .item-price {
-            font-size: 14px;
-            color: #00ff00;
-            font-weight: bold;
-            min-width: 80px;
-            text-align: right;
+        .nav-links .btn-login:hover {
+            background: var(--primary-hover) !important;
+            box-shadow: 0 0 25px rgba(13, 110, 253, 0.5);
         }
-
-        .item-controls {
+        .cart-nav-link {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 10px;
-            min-width: 120px;
+            gap: 6px;
+        }
+        .cart-badge {
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -4px;
+            right: -8px;
         }
 
-        .qty-display {
-            padding: 5px 10px;
-            background-color: #0b0911;
-            border: 1px solid #dc143c;
-            border-radius: 5px;
-            text-align: center;
-            min-width: 50px;
+        /* ============ CONTAINER ============ */
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px 60px;
         }
 
-        .btn-remove {
-            background-color: #ff4500;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
+        /* ============ HEADER ============ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+        }
+        .page-header h2 i {
+            color: var(--primary);
+        }
+        .btn-limpar {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-remove:hover {
-            background-color: #dc143c;
-        }
-
-        .empty-cart {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-cart i {
-            font-size: 64px;
-            color: #666;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .empty-cart p {
-            color: #aaa;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        .cart-summary {
-            background: linear-gradient(135deg, #1a0f1e 0%, #2d1a2e 100%);
-            border: 2px solid #dc143c;
-            border-radius: 10px;
-            padding: 25px;
-            height: fit-content;
-            position: sticky;
-            top: 80px;
-        }
-
-        .summary-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #dc143c;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 8px;
         }
+        .btn-limpar:hover {
+            background: rgba(220, 20, 60, 0.1);
+            border-color: #dc143c;
+            color: #dc143c;
+        }
 
-        .summary-item {
+        /* ============ TABELA ============ */
+        .cart-table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            background: var(--bg-panel);
+            box-shadow: var(--shadow);
+        }
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .cart-table thead {
+            background: rgba(13, 110, 253, 0.06);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .cart-table th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .cart-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .cart-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .cart-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .cart-table .empty-msg {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .cart-table .empty-msg i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .item-icon {
+            font-size: 1.6rem;
+            color: var(--primary);
+            width: 40px;
+            text-align: center;
+        }
+        .item-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .btn-remover {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .btn-remover:hover {
+            color: #dc143c;
+            background: rgba(220, 20, 60, 0.1);
+        }
+
+        /* ============ SEÇÕES ============ */
+        .section-title {
+            margin: 40px 0 20px;
+        }
+        .section-title h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .section-title h3 i {
+            color: var(--primary);
+        }
+        .section-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .accordion-block {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .accordion-block:hover {
+            border-color: var(--border-light);
+        }
+        .accordion-header {
+            padding: 16px 24px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+        }
+        .accordion-header:hover {
+            color: #fff;
+        }
+        .accordion-header i {
+            transition: var(--transition);
+        }
+
+        .form-content {
+            padding: 24px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-body);
+        }
+
+        /* ============ FORMULÁRIO ============ */
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            background: var(--bg-panel);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .form-row label.input-label {
+            width: 180px;
+            padding: 14px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: rgba(13, 110, 253, 0.04);
+            flex-shrink: 0;
+        }
+        .form-row input[type="text"],
+        .form-row input[type="email"] {
+            flex: 1;
+            background: var(--bg-input);
+            border: none;
+            padding: 14px 20px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-row input:focus {
+            box-shadow: inset 0 0 0 2px var(--primary);
+        }
+        .form-row input::placeholder {
+            color: var(--text-dark);
+        }
+
+        /* ============ PAGAMENTO ============ */
+        .payment-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .payment-method-label {
+            display: block;
+            cursor: pointer;
+        }
+        .payment-method-label input[type="radio"] {
+            display: none;
+        }
+        .payment-box {
+            border: 2px solid var(--border-color);
+            background: var(--bg-input);
+            padding: 24px 16px;
+            text-align: center;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            height: 100%;
+        }
+        .payment-box i {
+            font-size: 2.4rem;
+            color: var(--primary);
+        }
+        .payment-box img {
+            max-height: 40px;
+            width: auto;
+            filter: grayscale(100%);
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        .payment-box small {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-dark);
+        }
+        .payment-method-label input[type="radio"]:checked + .payment-box {
+            border-color: var(--primary);
+            color: #fff;
+            background: rgba(13, 110, 253, 0.06);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+        .payment-method-label input[type="radio"]:checked + .payment-box img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        /* ============ TERMOS E CHECKOUT ============ */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .btn-continuar {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px 36px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 50px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 20px var(--primary-glow);
+            letter-spacing: 0.5px;
+        }
+        .btn-continuar:hover:not(:disabled) {
+            background: var(--primary-hover);
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn-continuar:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ============ TOTAIS ============ */
+        .totals-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        .totals-box {
+            width: 320px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .totals-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-            color: #aaa;
-            font-size: 14px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-weight: 600;
         }
-
-        .summary-item.total {
-            border-top: 1px solid #333;
-            padding-top: 12px;
-            margin-top: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #00ff00;
+        .totals-row:last-child {
+            border-bottom: none;
         }
-
-        .btn-checkout {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #dc143c 0%, #ff4500 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .totals-row .label {
+            color: var(--text-muted);
         }
-
-        .btn-checkout:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
-        }
-
-        .btn-checkout:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-continue-shopping {
-            width: 100%;
-            padding: 12px;
-            background-color: transparent;
-            color: #dc143c;
-            border: 2px solid #dc143c;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-
-        .btn-continue-shopping:hover {
-            background-color: #dc143c;
+        .totals-row .value {
             color: #fff;
         }
+        .totals-row.total .value {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
 
+        /* ============ NOTIFICAÇÕES ============ */
         .notification {
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
-            background-color: #00ff00;
-            color: #000;
-            padding: 15px 25px;
-            border-radius: 5px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
-            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
-        }
-
-        .notification.error {
-            background-color: #ff4500;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary);
             color: #fff;
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.4s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            max-width: 400px;
+        }
+        .notification.error {
+            border-left-color: #dc143c;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(120%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
+        /* ============ RESPONSIVO ============ */
         @media (max-width: 768px) {
-            .cart-content {
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                background: transparent;
+                border: none;
+            }
+            .form-row label.input-label {
+                width: 100%;
+                padding: 10px 0;
+                background: transparent;
+                font-size: 0.8rem;
+            }
+            .form-row input {
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius);
+                padding: 12px 16px;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .totals-container {
+                justify-content: center;
+            }
+            .totals-box {
+                width: 100%;
+            }
+            .payment-options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .cart-table th,
+            .cart-table td {
+                padding: 12px 14px;
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .payment-options-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .cart-item {
-                flex-wrap: wrap;
-            }
-
-            .cart-summary {
-                position: static;
             }
         }
     </style>
@@ -308,174 +553,314 @@
 <body>
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="navbar-brand">
-            <i class="fas fa-shopping-cart"></i> CARRINHO
-        </div>
-        <div class="nav-links" style="display: flex; gap: 20px; align-items: center;">
-            <a href="/">Home</a>
-            <a href="/loja">Loja</a>
+        <a href="/" class="navbar-brand">
+            <i class="fas fa-cube"></i> Battle Bits
+        </a>
+        <div class="nav-links">
+            <a href="/">Início</a>
             <a href="/vips">VIPs</a>
             <a href="/forum">Fórum</a>
             <a href="/staffs">Staffs</a>
+            <a href="/carrinho" class="cart-nav-link" style="position:relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge" id="cartBadge">{{ cart|length }}</span>
+            </a>
             {% if session.get('username') %}
-                <a href="/logout" style="background: #dc143c; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; font-size: 13px;"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
+                <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Sair</a>
             {% else %}
-                <a href="/login" style="background: #dc143c; padding: 8px 15px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; font-size: 13px;">Entrar</a>
+                <a href="/login" class="btn-login">Entrar</a>
             {% endif %}
         </div>
     </nav>
 
     <div class="container">
-        <h1 class="page-title">
-            <i class="fas fa-shopping-cart"></i> Seu Carrinho
-        </h1>
+        
+        <!-- HEADER -->
+        <div class="page-header">
+            <h2><i class="fas fa-shopping-cart"></i> Carrinho de Compras</h2>
+            {% if cart|length > 0 %}
+            <button class="btn-limpar" onclick="clearCart()">
+                <i class="fas fa-trash-alt"></i> Limpar Carrinho
+            </button>
+            {% endif %}
+        </div>
 
-        {% if cart|length > 0 %}
-            <div class="cart-content">
-                <!-- ITENS DO CARRINHO -->
-                <div class="cart-items">
-                    {% for item in cart %}
-                    <div class="cart-item" data-item-id="{{ item.id }}" data-item-type="{{ item.type }}">
-                        <div class="item-icon">
-                            <i class="{{ item.icon if item.get('icon') else 'fas fa-cube' }}"></i>
-                        </div>
-                        <div class="item-info">
-                            <div class="item-name">{{ item.name }}</div>
-                            <div class="item-type">{{ 'VIP' if item.type == 'vip' else 'ITEM' }}</div>
-                        </div>
-                        <div class="item-price">R$ {{ "%.2f"|format(item.subtotal) }}</div>
-                        <div class="item-controls">
-                            <span class="qty-display">x{{ item.quantity }}</span>
-                            <button class="btn-remove" onclick="removeFromCart('{{ item.id }}', '{{ item.type }}')">
-                                <i class="fas fa-trash"></i> Remover
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
+        <!-- TABELA -->
+        <div class="cart-table-wrapper">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th style="width:60px;">Item</th>
+                        <th>Produto</th>
+                        <th style="width:100px;">Qtd</th>
+                        <th style="width:120px;">Total</th>
+                        <th style="width:80px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if cart|length > 0 %}
+                        {% for item in cart %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><i class="{{ item.icon if item.get('icon') else 'fas fa-cube' }} item-icon"></i></td>
+                            <td><span class="item-name">{{ item.name }}</span></td>
+                            <td>{{ item.quantity }}</td>
+                            <td><span class="item-price">R$ {{ "%.2f"|format(item.subtotal) }}</span></td>
+                            <td>
+                                <button class="btn-remover" onclick="removeFromCart('{{ item.id }}', '{{ item.type }}')" title="Remover item">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-msg">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Seu carrinho está vazio
+                                    <br>
+                                    <a href="/vips" style="color: var(--primary); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 12px;">
+                                        <i class="fas fa-arrow-right"></i> Explorar produtos
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TOTAIS -->
+        <div class="totals-container">
+            <div class="totals-box">
+                <div class="totals-row">
+                    <span class="label">Subtotal</span>
+                    <span class="value">R$ {{ "%.2f"|format(total) if total else "0,00" }}</span>
                 </div>
+                <div class="totals-row">
+                    <span class="label">Taxas</span>
+                    <span class="value">R$ 0,00</span>
+                </div>
+                <div class="totals-row total">
+                    <span class="label" style="font-size:1rem;">Total</span>
+                    <span class="value">R$ {{ "%.2f"|format(total) if total else "0,00" }}</span>
+                </div>
+            </div>
+        </div>
 
-                <!-- RESUMO DO CARRINHO -->
-                <div class="cart-summary">
-                    <div class="summary-title">
-                        <i class="fas fa-receipt"></i> Resumo
+        <!-- FORMULÁRIO DE CHECKOUT -->
+        <form id="checkout-form" method="POST" action="/api/checkout/process">
+            
+            <!-- INFORMAÇÕES DA COMPRA -->
+            <div class="section-title">
+                <h3><i class="fas fa-user"></i> Informações da Compra</h3>
+                <p>Preencha os dados para finalizar seu pedido</p>
+            </div>
+            
+            <div class="accordion-block">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Dados Pessoais <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="form-content">
+                    <div class="form-row">
+                        <label class="input-label">Seu nick no servidor</label>
+                        <input type="text" name="nick" id="nick" placeholder="Digite seu nick" required>
                     </div>
-
-                    <div class="summary-item">
-                        <span>Itens:</span>
-                        <span>{{ cart|length }}</span>
+                    <div class="form-row">
+                        <label class="input-label">E-mail</label>
+                        <input type="email" name="email" id="email" placeholder="seu@email.com" required>
                     </div>
-
-                    <div class="summary-item">
-                        <span>Subtotal:</span>
-                        <span>R$ {{ "%.2f"|format(total) }}</span>
+                    <div class="form-row">
+                        <label class="input-label">Nome</label>
+                        <input type="text" name="nome" id="nome" placeholder="Seu nome" required>
                     </div>
-
-                    <div class="summary-item">
-                        <span>Taxas:</span>
-                        <span>R$ 0,00</span>
+                    <div class="form-row">
+                        <label class="input-label">Sobrenome</label>
+                        <input type="text" name="sobrenome" id="sobrenome" placeholder="Seu sobrenome" required>
                     </div>
+                </div>
+            </div>
 
-                    <div class="summary-item total">
-                        <span>Total:</span>
-                        <span id="totalPrice">R$ {{ "%.2f"|format(total) }}</span>
+            <!-- PAGAMENTO -->
+            <div class="section-title">
+                <h3><i class="fas fa-credit-card"></i> Método de Pagamento</h3>
+                <p>Escolha como deseja pagar</p>
+            </div>
+            
+            <div class="accordion-block">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Detalhes do Pagamento <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="form-content">
+                    <div class="payment-options-grid">
+                        <label class="payment-method-label">
+                            <input type="radio" name="payment_method" value="mercadopago" checked required>
+                            <div class="payment-box">
+                                <img src="https://logopng.com.br/logos/mercado-pago-42.png" alt="Mercado Pago" style="height: 35px;">
+                                <span>Mercado Pago</span>
+                                <small>Pix, Cartão ou Boleto</small>
+                            </div>
+                        </label>
+                        <!-- Adicione mais métodos aqui se quiser -->
                     </div>
+                </div>
+            </div>
 
-                    <form method="POST" action="/checkout">
-                        <button type="submit" class="btn-checkout">
-                            <i class="fas fa-credit-card"></i> Ir para Pagamento
+            <!-- TERMOS E FINALIZAR -->
+            <div class="accordion-block">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    Revisão e Finalização <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="form-content">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                        <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+                        Ao finalizar a compra, você concorda com nossos 
+                        <a href="#" style="color: var(--primary); text-decoration: none;">Termos de Serviço</a> e 
+                        <a href="#" style="color: var(--primary); text-decoration: none;">Política de Reembolso</a>.
+                        Seus dados estão seguros.
+                    </p>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-continuar" id="btn-finalizar" {% if cart|length == 0 %}disabled{% endif %}>
+                            <i class="fas fa-check-circle"></i> Finalizar Compra
                         </button>
-                    </form>
-
-                    <a href="/loja" class="btn-continue-shopping">
-                        <i class="fas fa-arrow-left"></i> Continuar Comprando
-                    </a>
-
-                    <button class="btn-continue-shopping" onclick="clearCart()" style="border-color: #ff4500; color: #ff4500; margin-top: 5px;">
-                        <i class="fas fa-trash"></i> Limpar Carrinho
-                    </button>
+                    </div>
+                    <div id="wallet_container" style="margin-top: 16px;"></div>
                 </div>
             </div>
-        {% else %}
-            <div class="cart-items">
-                <div class="empty-cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <p>Seu carrinho está vazio</p>
-                    <a href="/loja" class="btn-checkout" style="text-decoration: none; display: inline-block; width: auto; padding: 12px 30px;">
-                        <i class="fas fa-shop"></i> Ir para a Loja
-                    </a>
-                </div>
-            </div>
-        {% endif %}
+        </form>
+
     </div>
 
+    <!-- SCRIPTS -->
     <script>
-        // Remover do carrinho
-        function removeFromCart(itemId, itemType) {
-            fetch('/api/cart/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: itemId,
-                    type: itemType
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Item removido do carrinho', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
-                } else {
-                    showNotification('Erro ao remover item', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Erro ao remover item', 'error');
-            });
-        }
-
-        // Limpar carrinho
-        function clearCart() {
-            if (confirm('Tem certeza que deseja limpar todo o carrinho?')) {
-                fetch('/api/cart/clear', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Carrinho limpo', 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 500);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erro ao limpar carrinho', 'error');
-                });
+        // ===== TOGGLE ACCORDION =====
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i:last-child');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
             }
         }
 
-        // Mostrar notificação
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
-            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.3s ease-out reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+        // Abrir o primeiro accordion por padrão
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstAccordion = document.querySelector('.accordion-block .form-content');
+            if (firstAccordion) {
+                firstAccordion.style.display = 'block';
+                const icon = firstAccordion.parentElement.querySelector('.accordion-header i:last-child');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+        });
+
+        // ===== REMOVER ITEM =====
+        function removeFromCart(itemId, itemType) {
+            fetch('/api/cart/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: itemId, type: itemType })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Item removido do carrinho', 'success');
+                    setTimeout(() => location.reload(), 400);
+                } else {
+                    showNotification(data.message || 'Erro ao remover item', 'error');
+                }
+            })
+            .catch(() => showNotification('Erro ao remover item', 'error'));
         }
+
+        // ===== LIMPAR CARRINHO =====
+        function clearCart() {
+            if (!confirm('Tem certeza que deseja remover todos os itens?')) return;
+            fetch('/api/cart/clear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Carrinho esvaziado', 'success');
+                    setTimeout(() => location.reload(), 400);
+                }
+            })
+            .catch(() => showNotification('Erro ao limpar carrinho', 'error'));
+        }
+
+        // ===== NOTIFICAÇÕES =====
+        function showNotification(message, type = 'success') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.className = `notification ${type === 'error' ? 'error' : ''}`;
+            div.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.animation = 'slideInRight 0.4s ease reverse forwards';
+                setTimeout(() => div.remove(), 400);
+            }, 3500);
+        }
+
+        // ===== SUBMISSÃO DO FORMULÁRIO (Checkout) =====
+        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btn-finalizar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Validação rápida
+            if (!data.nick || !data.email || !data.nome || !data.sobrenome) {
+                showNotification('Preencha todos os campos', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Finalizar Compra';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/checkout/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+
+                if (result.success && result.preference_id) {
+                    // Redireciona para o checkout do Mercado Pago
+                    if (result.init_point) {
+                        window.location.href = result.init_point;
+                    } else {
+                        // Fallback: mostra o botão wallet
+                        const mp = new MercadoPago('{{ mp_public_key }}', { locale: 'pt-BR' });
+                        mp.bricks().create("wallet", "wallet_container", {
+                            initialization: { preferenceId: result.preference_id }
+                        });
+                        btn.style.display = 'none';
+                        showNotification('Pagamento gerado com sucesso!', 'success');
+                    }
+                } else {
+                    showNotification(result.message || 'Erro ao gerar pagamento.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Finalizar Compra';
+                }
+            } catch (error) {
+                showNotification('Erro de comunicação com o servidor.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Finalizar Compra';
+            }
+        });
     </script>
 </body>
 </html>

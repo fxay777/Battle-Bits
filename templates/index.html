@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batlle Bits - Servidor Minecraft</title>
+    <title>Battle Bits - Servidor Minecraft</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ===== CORES ATUALIZADAS: AZUL E PRETO ===== */
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
-            --bg-card-hover: #1a1a1a;
-            --primary: #e63946;
-            --primary-glow: rgba(230, 57, 70, 0.4);
-            --accent: #ff6b6b;
-            --accent-glow: rgba(255, 107, 107, 0.35);
-            --gold: #ff4757;
-            --gold-glow: rgba(255, 71, 87, 0.4);
+            --bg-card-hover: #1a1a2e;
+            --primary: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
+            --accent-glow: rgba(79, 195, 247, 0.35);
             --text: #e0e0e0;
             --text-muted: #9a9ab0;
             --border: rgba(255, 255, 255, 0.06);
@@ -38,6 +38,7 @@
 
         body {
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
             color: var(--text);
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
@@ -76,7 +77,7 @@
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -112,8 +113,8 @@
             background: rgba(255, 255, 255, 0.05);
         }
         .nav-link.active {
-            background: rgba(230, 57, 70, 0.2);
-            color: #ff8c94;
+            background: rgba(13, 110, 253, 0.15);
+            color: var(--accent);
         }
         .btn-login {
             background: var(--primary) !important;
@@ -124,8 +125,8 @@
             transition: var(--transition);
         }
         .btn-login:hover {
-            background: #ff4757 !important;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: var(--primary-hover) !important;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-1px);
         }
         .hamburger {
@@ -209,13 +210,8 @@
             animation: floatLogo 3.5s ease-in-out infinite;
         }
         @keyframes floatLogo {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-14px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
         }
         .server-logo {
             width: 150px;
@@ -223,12 +219,12 @@
             border-radius: 50%;
             object-fit: cover;
             border: 5px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 60px rgba(230, 57, 70, 0.5), 0 0 120px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 60px var(--primary-glow), 0 0 120px rgba(0, 0, 0, 0.6);
             transition: var(--transition);
         }
         .server-logo:hover {
             border-color: var(--primary);
-            box-shadow: 0 0 80px rgba(230, 57, 70, 0.7), 0 0 150px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 80px var(--primary-glow), 0 0 150px rgba(0, 0, 0, 0.7);
         }
         .banner-ip-badge {
             position: absolute;
@@ -254,7 +250,7 @@
             white-space: nowrap;
         }
         .banner-ip-badge:hover {
-            background: rgba(230, 57, 70, 0.3);
+            background: rgba(13, 110, 253, 0.3);
             border-color: var(--primary);
             box-shadow: 0 0 30px var(--primary-glow);
         }
@@ -303,8 +299,8 @@
         }
         .section-tag {
             display: inline-block;
-            background: rgba(230, 57, 70, 0.15);
-            color: #ff8c94;
+            background: rgba(13, 110, 253, 0.12);
+            color: var(--accent);
             font-weight: 600;
             font-size: 0.8rem;
             text-transform: uppercase;
@@ -312,7 +308,7 @@
             padding: 6px 18px;
             border-radius: 50px;
             margin-bottom: 16px;
-            border: 1px solid rgba(230, 57, 70, 0.3);
+            border: 1px solid rgba(13, 110, 253, 0.25);
         }
         .section-title {
             font-family: 'Montserrat', sans-serif;
@@ -368,17 +364,12 @@
             animation: pulseDot 2s infinite;
         }
         .status-dot.online {
-            background: #ff4757;
-            box-shadow: 0 0 10px #ff4757;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
         @keyframes pulseDot {
-            0%,
-            100% {
-                box-shadow: 0 0 8px currentColor;
-            }
-            50% {
-                box-shadow: 0 0 22px currentColor, 0 0 40px currentColor;
-            }
+            0%, 100% { box-shadow: 0 0 8px currentColor; }
+            50% { box-shadow: 0 0 22px currentColor, 0 0 40px currentColor; }
         }
         .status-value {
             color: #fff;
@@ -437,13 +428,13 @@
             font-size: 1.8rem;
             transition: var(--transition);
         }
-        .feature-icon.red {
-            background: rgba(230, 57, 70, 0.15);
-            color: #ff8c94;
+        .feature-icon.blue {
+            background: rgba(13, 110, 253, 0.12);
+            color: var(--accent);
         }
-        .feature-icon.orange {
-            background: rgba(255, 71, 87, 0.15);
-            color: #ff6b6b;
+        .feature-icon.light-blue {
+            background: rgba(79, 195, 247, 0.12);
+            color: #fff;
         }
         .feature-card h3 {
             font-family: 'Montserrat', sans-serif;
@@ -475,8 +466,8 @@
             overflow: hidden;
         }
         .vip-preview-card.featured {
-            border-color: rgba(230, 57, 70, 0.4);
-            box-shadow: 0 0 40px rgba(230, 57, 70, 0.1);
+            border-color: rgba(13, 110, 253, 0.3);
+            box-shadow: 0 0 40px rgba(13, 110, 253, 0.1);
         }
         .vip-preview-card.featured::after {
             content: 'MAIS POPULAR';
@@ -550,7 +541,8 @@
             box-shadow: 0 0 20px var(--primary-glow);
         }
         .vip-btn.primary:hover {
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: var(--primary-hover);
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: scale(1.02);
         }
         .vip-btn.outline {
@@ -563,13 +555,13 @@
             background: rgba(255, 255, 255, 0.04);
         }
         .vip-btn.gold {
-            background: linear-gradient(135deg, #e63946 0%, #c0392b 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             color: #fff;
             font-weight: 700;
-            box-shadow: 0 0 25px var(--gold-glow);
+            box-shadow: 0 0 25px var(--primary-glow);
         }
         .vip-btn.gold:hover {
-            box-shadow: 0 0 45px rgba(230, 57, 70, 0.7);
+            box-shadow: 0 0 45px rgba(13, 110, 253, 0.7);
             transform: scale(1.02);
         }
 
@@ -696,7 +688,7 @@
             font-weight: 900;
             font-size: 2.6rem;
             letter-spacing: -1px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -743,6 +735,12 @@
             position: relative;
             z-index: 1;
         }
+        .cta-section h2 span {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         .cta-section p {
             color: var(--text-muted);
             margin: 12px 0 28px;
@@ -774,7 +772,8 @@
             box-shadow: 0 0 30px var(--primary-glow);
         }
         .cta-button.primary-cta:hover {
-            box-shadow: 0 0 50px rgba(230, 57, 70, 0.7);
+            background: var(--primary-hover);
+            box-shadow: 0 0 50px rgba(13, 110, 253, 0.7);
             transform: translateY(-2px);
         }
         .cta-button.secondary-cta {
@@ -854,15 +853,14 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <i class="fas fa-cube"></i> Batlle Bits
+                <i class="fas fa-cube"></i> Battle Bits
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li class="nav-item"><a href="/" class="nav-link active">Início</a></li>
-                <li class="nav-item"><a href="/loja" class="nav-link">Loja</a></li>
+                <li class="nav-item"><a href="/" class="nav-link active">Início</a></li>               
                 <li class="nav-item"><a href="/vips" class="nav-link">VIPs</a></li>
                 <li class="nav-item"><a href="/forum" class="nav-link">Fórum</a></li>
                 <li class="nav-item"><a href="/staffs" class="nav-link">Staffs</a></li>
-                <li class="nav-item"><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li class="nav-item"><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 {% if session.get('username') %}
                     <li class="nav-item"><a href="/logout" class="nav-link btn-login"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a></li>
                 {% else %}
@@ -879,10 +877,10 @@
 
     <!-- ============ BANNER ============ -->
     <section class="banner-section" id="banner">
-        <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Banner Batlle Bits" class="banner-img">
+        <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Banner Battle Bits" class="banner-img">
         <div class="banner-overlay"></div>
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="Logo Batlle Bits" class="server-logo">
+            <img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="Logo Battle Bits" class="server-logo">
         </div>
         <div class="banner-ip-badge" id="ipBadge" title="Clique para copiar o IP">
             <i class="fas fa-play"></i> <span id="serverIP">batlebits.com</span>
@@ -898,15 +896,15 @@
                 <span>Servidor <span class="status-value">Online</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <i class="fas fa-users" style="color: var(--accent);"></i>
                 <span><span class="status-value" id="playerCount">247</span> jogadores online</span>
             </div>
             <div class="status-item">
-                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <i class="fas fa-star" style="color: var(--primary);"></i>
                 <span>Versão <span class="status-value">1.7 & 1.8</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-clock" style="color: #ff6b6b;"></i>
+                <i class="fas fa-clock" style="color: var(--accent);"></i>
                 <span>Último wipe: <span class="status-value">15/06/2026</span></span>
             </div>
         </div>
@@ -924,22 +922,22 @@
             <!-- Cards de Features -->
             <div class="features-grid reveal">
                 <div class="feature-card">
-                    <div class="feature-icon red"><i class="fas fa-crown"></i></div>
+                    <div class="feature-icon blue"><i class="fas fa-crown"></i></div>
                     <h3>VIPs Exclusivos</h3>
                     <p>Poderes, kits e vantagens únicas que transformam sua jogabilidade.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon orange"><i class="fas fa-comments"></i></div>
+                    <div class="feature-icon light-blue"><i class="fas fa-comments"></i></div>
                     <h3>Fórum Ativo</h3>
                     <p>Participe de discussões, tire dúvidas e faça amizades na nossa comunidade.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon red"><i class="fas fa-shield-haltered"></i></div>
+                    <div class="feature-icon blue"><i class="fas fa-shield-haltered"></i></div>
                     <h3>Staff Dedicada</h3>
                     <p>Moderadores e administradores sempre prontos para ajudar você.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon orange"><i class="fas fa-calendar-star"></i></div>
+                    <div class="feature-icon light-blue"><i class="fas fa-calendar-star"></i></div>
                     <h3>Eventos Semanais</h3>
                     <p>Competições, sorteios e guerras de clãs com prêmios incríveis.</p>
                 </div>
@@ -952,14 +950,14 @@
         <div class="container">
             <div class="why-grid reveal">
                 <div class="why-image-wrapper">
-                    <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Gameplay Batlle Bits" style="width:100%;height:100%;object-fit:cover;">
+                    <img src="{{ url_for('static', filename='imgs/banner.png') }}" alt="Gameplay Battle Bits" style="width:100%;height:100%;object-fit:cover;">
                     <div class="play-overlay">
                         <i class="fas fa-play-circle"></i>
                     </div>
                 </div>
                 <div class="why-content">
                     <span class="section-tag">🌟 Diferenciais</span>
-                    <h2>Por que escolher o <span>Batlle Bits</span>?</h2>
+                    <h2>Por que escolher o <span>Battle Bits</span>?</h2>
                     <p>Não somos apenas mais um servidor. Oferecemos uma experiência completa com sistema de clãs, economia balanceada, proteção de territórios e muito mais.</p>
                     <ul class="why-list">
                         <li><i class="fas fa-check-circle"></i> <span><strong>Sem Pay-to-Win:</strong> VIPs oferecem vantagens cosméticas e de qualidade de vida.</span></li>
@@ -983,7 +981,7 @@
             <div class="vip-preview-grid reveal">
                 <!-- VIP Básico -->
                 <div class="vip-preview-card">
-                    <div class="vip-tier" style="color:#ff8c94;">⚡ VIP BÁSICO</div>
+                    <div class="vip-tier" style="color: var(--accent);">⚡ VIP BÁSICO</div>
                     <div class="vip-price">R$19<span>,90/mês</span></div>
                     <ul class="vip-perks">
                         <li><i class="fas fa-check"></i> Tag exclusiva no chat</li>
@@ -995,7 +993,7 @@
                 </div>
                 <!-- VIP Premium (mais popular) -->
                 <div class="vip-preview-card featured">
-                    <div class="vip-tier" style="color:#ff6b6b;">👑 VIP PREMIUM</div>
+                    <div class="vip-tier" style="color: #fff;">👑 VIP PREMIUM</div>
                     <div class="vip-price">R$39<span>,90/mês</span></div>
                     <ul class="vip-perks">
                         <li><i class="fas fa-check"></i> Todos os benefícios do Básico</li>
@@ -1008,7 +1006,7 @@
                 </div>
                 <!-- VIP Master -->
                 <div class="vip-preview-card">
-                    <div class="vip-tier" style="color:#ff8c94;">💜 VIP MASTER</div>
+                    <div class="vip-tier" style="color: var(--accent);">💜 VIP MASTER</div>
                     <div class="vip-price">R$69<span>,90/mês</span></div>
                     <ul class="vip-perks">
                         <li><i class="fas fa-check"></i> Todos os benefícios do Premium</li>
@@ -1028,7 +1026,7 @@
         <div class="container">
             <div class="cta-section reveal">
                 <span class="section-tag">🚀 Pronto para jogar?</span>
-                <h2>Junte-se ao <span style="background: linear-gradient(135deg, #e63946 0%, #ff6b6b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Batlle Bits</span> hoje mesmo!</h2>
+                <h2>Junte-se ao <span>Battle Bits</span> hoje mesmo!</h2>
                 <p>O IP já está copiado? Entre agora e descubra por que somos o servidor favorito da comunidade.</p>
                 <div class="cta-buttons">
                     <a href="/cadastro" class="cta-button primary-cta"><i class="fas fa-user-plus"></i> Criar Conta</a>
@@ -1048,7 +1046,7 @@
                 <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
                 <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
             </div>
-            <p>&copy; 2026 Batlle Bits. Todos os direitos reservados. | Não afiliado à Mojang/Microsoft.</p>
+            <p>&copy; 2026 Battle Bits. Todos os direitos reservados. | Não afiliado à Mojang/Microsoft.</p>
         </div>
     </footer>
 
@@ -1117,35 +1115,8 @@
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // ============ CONTADOR ANIMADO DE ESTATÍSTICAS ============
-        const statNumbers = document.querySelectorAll('.stat-number[data-count]');
-        const countObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    const target = parseFloat(el.getAttribute('data-count'));
-                    const isDecimal = target % 1 !== 0;
-                    const duration = 1800;
-                    const startTime = performance.now();
-
-                    function updateCount(currentTime) {
-                        const elapsed = currentTime - startTime;
-                        const progress = Math.min(elapsed / duration, 1);
-                        const eased = 1 - Math.pow(1 - progress, 3);
-                        const current = target * eased;
-                        el.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
-                        if (progress < 1) {
-                            requestAnimationFrame(updateCount);
-                        } else {
-                            el.textContent = isDecimal ? target.toFixed(1) : target;
-                        }
-                    }
-                    requestAnimationFrame(updateCount);
-                    countObserver.unobserve(el);
-                }
-            });
-        }, { threshold: 0.4 });
-        statNumbers.forEach(el => countObserver.observe(el));
+        // ============ CONTADOR ANIMADO DE ESTATÍSTICAS (se houver) ============
+        // (mantido para compatibilidade, mas não há stats com data-count na home atual)
 
         // ============ SIMULAÇÃO DE JOGADORES ONLINE ============
         const playerCountEl = document.getElementById('playerCount');
@@ -1156,7 +1127,7 @@
             playerCountEl.textContent = newCount;
         }, 8000);
 
-        console.log('🚀 Batlle Bits - Página inicial carregada com sucesso!');
+        console.log('🚀 Battle Bits - Página inicial carregada com sucesso!');
         console.log('💡 Dica: Clique no IP no banner para copiá-lo.');
     </script>
 </body>

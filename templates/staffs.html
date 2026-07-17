@@ -11,10 +11,10 @@
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
-            --bg-card-hover: #1a1a1a;
-            --primary: #e63946;
-            --primary-glow: rgba(230, 57, 70, 0.4);
-            --accent: #ff6b6b;
+            --bg-card-hover: #1a1a2e;
+            --primary: #0d6efd;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
             --text: #e0e0e0;
             --text-muted: #9a9ab0;
             --border: rgba(255, 255, 255, 0.06);
@@ -33,6 +33,7 @@
 
         body {
             background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
             color: var(--text);
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
@@ -71,7 +72,7 @@
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -107,8 +108,8 @@
             background: rgba(255, 255, 255, 0.05);
         }
         .nav-link.active {
-            background: rgba(230, 57, 70, 0.2);
-            color: #ff8c94;
+            background: rgba(13, 110, 253, 0.15);
+            color: var(--accent);
         }
         .btn-login {
             background: var(--primary) !important;
@@ -126,8 +127,8 @@
             gap: 8px;
         }
         .btn-login:hover {
-            background: #ff4757 !important;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: #0b5ed7 !important;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-1px);
         }
         .hamburger {
@@ -208,8 +209,8 @@
             animation: pulseDot 2s infinite;
         }
         .status-dot.online {
-            background: #ff4757;
-            box-shadow: 0 0 10px #ff4757;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
         @keyframes pulseDot {
             0%,
@@ -243,7 +244,7 @@
             font-weight: 800;
             font-size: 2.4rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -255,7 +256,7 @@
             font-size: 1rem;
         }
 
-        /* Blocos de categorias */
+        /* Categorias */
         .staff-category-block {
             margin-bottom: 40px;
             background: var(--bg-card);
@@ -268,110 +269,180 @@
         .staff-category-block:hover {
             border-color: var(--border-light);
         }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 2px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
         .category-title {
-            padding: 14px 24px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-align: center;
             color: #fff;
-            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        .category-title i {
+            font-size: 1.2rem;
+        }
+        .category-count {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .category-count i {
+            font-size: 0.9rem;
+        }
+
         .staffs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 24px;
-            padding: 30px;
-            justify-content: center;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 24px;
         }
+
         .staff-card {
+            background: rgba(255, 255, 255, 0.02);
             border-radius: 12px;
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
+            padding: 20px 16px 16px;
+            text-align: center;
+            transition: var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 28px 20px;
-            transition: var(--transition);
         }
         .staff-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
             background: var(--bg-card-hover);
-        }
-        .staff-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 18px;
-            text-align: center;
-            word-break: break-all;
+            border-color: var(--border-light);
         }
         .staff-avatar {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(13, 110, 253, 0.08);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .staff-card:hover .staff-avatar {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
         }
         .staff-avatar img {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             object-fit: contain;
             image-rendering: pixelated;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
         }
 
-        /* Cores por cargo */
-        .role-dono .category-title {
-            background: rgba(230, 57, 70, 0.15);
-            border-bottom: 2px solid var(--primary);
-        }
-        .role-dono .staff-card {
-            border-top: 2px solid rgba(230, 57, 70, 0.5);
-        }
-        .role-dono .staff-card:hover {
-            border-top-color: var(--primary);
-            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.25);
+        .staff-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            word-break: break-all;
+            line-height: 1.3;
         }
 
-        .role-gerente .category-title {
-            background: rgba(255, 77, 109, 0.1);
-            border-bottom: 2px solid #ff4d6d;
+        /* Cores por cargo (com base nas cores da print) */
+        .role-ceo .category-header {
+            border-bottom-color: #e63946;
+        }
+        .role-ceo .category-title i {
+            color: #e63946;
+        }
+        .role-ceo .staff-card {
+            border-top: 2px solid rgba(230, 57, 70, 0.3);
+        }
+        .role-ceo .staff-card:hover {
+            border-top-color: #e63946;
+            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.2);
+        }
+
+        .role-developer .category-header {
+            border-bottom-color: #f77f00;
+        }
+        .role-developer .category-title i {
+            color: #f77f00;
+        }
+        .role-developer .staff-card {
+            border-top: 2px solid rgba(247, 127, 0, 0.3);
+        }
+        .role-developer .staff-card:hover {
+            border-top-color: #f77f00;
+            box-shadow: 0 8px 30px rgba(247, 127, 0, 0.2);
+        }
+
+        .role-diretor .category-header {
+            border-bottom-color: #9c27b0;
+        }
+        .role-diretor .category-title i {
+            color: #9c27b0;
+        }
+        .role-diretor .staff-card {
+            border-top: 2px solid rgba(156, 39, 176, 0.3);
+        }
+        .role-diretor .staff-card:hover {
+            border-top-color: #9c27b0;
+            box-shadow: 0 8px 30px rgba(156, 39, 176, 0.2);
+        }
+
+        .role-gerente .category-header {
+            border-bottom-color: #0d6efd;
+        }
+        .role-gerente .category-title i {
+            color: #0d6efd;
         }
         .role-gerente .staff-card {
-            border-top: 2px solid rgba(255, 77, 109, 0.5);
+            border-top: 2px solid rgba(13, 110, 253, 0.3);
         }
         .role-gerente .staff-card:hover {
-            border-top-color: #ff4d6d;
-            box-shadow: 0 8px 30px rgba(255, 77, 109, 0.2);
+            border-top-color: #0d6efd;
+            box-shadow: 0 8px 30px rgba(13, 110, 253, 0.2);
         }
 
-        .role-moderador .category-title {
-            background: rgba(0, 204, 68, 0.1);
-            border-bottom: 2px solid #00cc44;
+        .role-admin .category-header {
+            border-bottom-color: #2ecc71;
         }
-        .role-moderador .staff-card {
-            border-top: 2px solid rgba(0, 204, 68, 0.5);
+        .role-admin .category-title i {
+            color: #2ecc71;
         }
-        .role-moderador .staff-card:hover {
-            border-top-color: #00cc44;
-            box-shadow: 0 8px 30px rgba(0, 204, 68, 0.2);
+        .role-admin .staff-card {
+            border-top: 2px solid rgba(46, 204, 113, 0.3);
+        }
+        .role-admin .staff-card:hover {
+            border-top-color: #2ecc71;
+            box-shadow: 0 8px 30px rgba(46, 204, 113, 0.2);
         }
 
-        .role-helper .category-title {
-            background: rgba(0, 102, 255, 0.1);
-            border-bottom: 2px solid #0066ff;
+        .role-moderator .category-header {
+            border-bottom-color: #3498db;
         }
-        .role-helper .staff-card {
-            border-top: 2px solid rgba(0, 102, 255, 0.5);
+        .role-moderator .category-title i {
+            color: #3498db;
         }
-        .role-helper .staff-card:hover {
-            border-top-color: #0066ff;
-            box-shadow: 0 8px 30px rgba(0, 102, 255, 0.2);
+        .role-moderator .staff-card {
+            border-top: 2px solid rgba(52, 152, 219, 0.3);
+        }
+        .role-moderator .staff-card:hover {
+            border-top-color: #3498db;
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.2);
         }
 
         /* ============ FOOTER ============ */
@@ -478,6 +549,15 @@
                 flex-direction: column;
                 text-align: center;
             }
+            .category-header {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            .staffs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -487,16 +567,21 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="/" class="nav-logo">
-                <i class="fas fa-cube"></i> Batlle Bits
+                <i class="fas fa-cube"></i> Battle Bits
             </a>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="/" class="nav-link">Início</a></li>
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
                 <li><a href="/staffs" class="nav-link active">Staffs</a></li>
-                <li><a href="/novidades" class="nav-link">Novidades</a></li>
-                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
-                <li><a href="/cadastro" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
+                <li>
+                    {% if is_admin %}
+                        <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Logout {{ username }}</a>
+                    {% else %}
+                        <a href="/cadastro" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a>
+                    {% endif %}
+                </li>
             </ul>
             <div class="hamburger" id="hamburger">
                 <span class="bar"></span>
@@ -514,11 +599,11 @@
                 <span>Servidor <span class="status-value">Online</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <i class="fas fa-users" style="color: var(--accent);"></i>
                 <span><span class="status-value" id="playerCount">247</span> jogadores</span>
             </div>
             <div class="status-item">
-                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <i class="fas fa-star" style="color: var(--primary);"></i>
                 <span>Versão <span class="status-value">1.7 & 1.8</span></span>
             </div>
         </div>
@@ -532,65 +617,120 @@
                 <p class="page-subtitle">Conheça os staffs que mantêm o servidor ativo 24/7</p>
             </div>
 
-            <div class="staff-category-block role-dono reveal">
-                <div class="category-title"><i class="fas fa-crown"></i> Dono</div>
+            <!-- CEO -->
+            <div class="staff-category-block role-ceo reveal">
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-crown"></i> CEO</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 3 membros</span>
+                </div>
                 <div class="staffs-grid">
                     <div class="staff-card">
-                        <div class="staff-name">Dono_Exemplo1</div>
                         <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Dono">
+                            <img src="https://minotar.net/armor/bust/Notch/130.png" alt="CEO">
                         </div>
+                        <span class="staff-name">Notch</span>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="CEO">
+                        </div>
+                        <span class="staff-name">Steve</span>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="CEO">
+                        </div>
+                        <span class="staff-name">Alex</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Developer -->
+            <div class="staff-category-block role-developer reveal">
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-code"></i> Developer</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 2 membros</span>
+                </div>
+                <div class="staffs-grid">
+                    <div class="staff-card">
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Jeb_/130.png" alt="Developer">
+                        </div>
+                        <span class="staff-name">Jeb_</span>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar">
+                            <img src="https://minotar.net/armor/bust/Dinnerbone/130.png" alt="Developer">
+                        </div>
+                        <span class="staff-name">Dinnerbone</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diretor -->
+            <div class="staff-category-block role-diretor reveal">
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-briefcase"></i> Diretor</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 0 membros</span>
+                </div>
+                <div class="staffs-grid">
+                    <div class="staff-card" style="opacity:0.5; border-style:dashed;">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user-plus" style="font-size:2rem; color:var(--text-muted);"></i>
+                        </div>
+                        <span class="staff-name" style="color:var(--text-muted);">Vago</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerente -->
             <div class="staff-category-block role-gerente reveal">
-                <div class="category-title"><i class="fas fa-star"></i> Gerente</div>
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-star"></i> Gerente</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 1 membro</span>
+                </div>
                 <div class="staffs-grid">
                     <div class="staff-card">
-                        <div class="staff-name">Gerente_Exemplo1</div>
                         <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Gerente">
+                            <img src="https://minotar.net/armor/bust/Herobrine/130.png" alt="Gerente">
                         </div>
+                        <span class="staff-name">Herobrine</span>
                     </div>
                 </div>
             </div>
 
-            <div class="staff-category-block role-moderador reveal">
-                <div class="category-title"><i class="fas fa-shield-haltered"></i> Moderador</div>
+            <!-- Admin -->
+            <div class="staff-category-block role-admin reveal">
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-shield-haltered"></i> Admin</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 0 membros</span>
+                </div>
                 <div class="staffs-grid">
-                    <div class="staff-card">
-                        <div class="staff-name">Mod_Exemplo1</div>
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Moderador">
+                    <div class="staff-card" style="opacity:0.5; border-style:dashed;">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user-plus" style="font-size:2rem; color:var(--text-muted);"></i>
                         </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-name">Mod_Exemplo2</div>
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="Avatar Moderador">
-                        </div>
+                        <span class="staff-name" style="color:var(--text-muted);">Vago</span>
                     </div>
                 </div>
             </div>
 
-            <div class="staff-category-block role-helper reveal">
-                <div class="category-title"><i class="fas fa-hands-helping"></i> Helper</div>
+            <!-- Moderator -->
+            <div class="staff-category-block role-moderator reveal">
+                <div class="category-header">
+                    <span class="category-title"><i class="fas fa-gavel"></i> Moderator</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 0 membros</span>
+                </div>
                 <div class="staffs-grid">
-                    <div class="staff-card">
-                        <div class="staff-name">Helper_Exemplo1</div>
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="Avatar Helper">
+                    <div class="staff-card" style="opacity:0.5; border-style:dashed;">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user-plus" style="font-size:2rem; color:var(--text-muted);"></i>
                         </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-name">Helper_Exemplo2</div>
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="Avatar Helper">
-                        </div>
+                        <span class="staff-name" style="color:var(--text-muted);">Vago</span>
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -598,7 +738,7 @@
     <footer class="main-footer">
         <div class="footer-content">
             <div class="footer-brand">
-                <h2><i class="fas fa-server"></i> Batlle Bits</h2>
+                <h2><i class="fas fa-server"></i> Battle Bits</h2>
                 <p>Se você acredita em nosso objetivo de proporcionar uma melhor experiência de jogo e deseja fazer parte dessa jornada conosco, considere fazer uma doação hoje. Juntos, podemos continuar construindo e fortalecendo esta comunidade incrível.</p>
             </div>
             <div class="footer-links">
@@ -608,7 +748,6 @@
                     <li><a href="/carrinho"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
                     <li><a href="/forum"><i class="fas fa-comments"></i> Fórum</a></li>
                     <li><a href="/vips"><i class="fas fa-star"></i> Loja de VIPs</a></li>
-                    <li><a href="#"><i class="fas fa-globe"></i> Nosso Site</a></li>
                 </ul>
             </div>
             <div class="footer-links">

@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cadastro - Battle Bits</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
+        /* ===== Cores atualizadas ===== */
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
-            --primary: #e63946;
-            --primary-glow: rgba(230, 57, 70, 0.4);
-            --accent: #ff6b6b;
+            --primary: #0d6efd;            /* Azul principal */
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;             /* Azul claro para detalhes */
             --text: #e0e0e0;
             --text-muted: #9a9ab0;
             --border: rgba(255, 255, 255, 0.06);
@@ -72,7 +73,7 @@
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #4fc3f7 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -122,8 +123,8 @@
             gap: 8px;
         }
         .nav-link.btn-login:hover {
-            background: #ff4757 !important;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: #0b5ed7 !important;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-1px);
         }
         .hamburger {
@@ -204,8 +205,8 @@
             animation: pulseDot 2s infinite;
         }
         .status-dot.online {
-            background: #ff4757;
-            box-shadow: 0 0 10px #ff4757;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
         }
         @keyframes pulseDot {
             0%,
@@ -227,8 +228,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 160px 20px 60px; /* espaço para navbar + status */
-            background: radial-gradient(circle at 50% 30%, rgba(230, 57, 70, 0.06) 0%, transparent 60%);
+            padding: 160px 20px 60px;
+            background: radial-gradient(circle at 50% 30%, rgba(13, 110, 253, 0.06) 0%, transparent 60%);
         }
         .cadastro-container {
             background: var(--bg-card);
@@ -246,7 +247,7 @@
             font-weight: 800;
             font-size: 2rem;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #ff8c94 100%);
+            background: linear-gradient(135deg, #fff 0%, #4fc3f7 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -306,8 +307,8 @@
             margin-top: 10px;
         }
         .btn-cadastro:hover {
-            background: #ff4757;
-            box-shadow: 0 0 35px rgba(230, 57, 70, 0.7);
+            background: #0b5ed7;
+            box-shadow: 0 0 35px rgba(13, 110, 253, 0.7);
             transform: translateY(-2px);
         }
         .btn-cadastro:active {
@@ -326,7 +327,7 @@
             transition: color 0.3s;
         }
         .login-link a:hover {
-            color: #ff8c94;
+            color: #4fc3f7;
             text-decoration: underline;
         }
         .erro-message {
@@ -354,8 +355,8 @@
             gap: 10px;
         }
         .form-info {
-            background: rgba(230, 57, 70, 0.05);
-            border: 1px solid rgba(230, 57, 70, 0.2);
+            background: rgba(13, 110, 253, 0.05);
+            border: 1px solid rgba(13, 110, 253, 0.2);
             padding: 14px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -398,14 +399,13 @@
                 <li><a href="/" class="nav-link">Início</a></li>
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
-                <li><a href="/staffs" class="nav-link">Staffs</a></li>
-                <li><a href="/novidades" class="nav-link">Novidades</a></li>
-                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> Carrinho</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>              <
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 <li>
                     {% if is_admin %}
                         <a href="/logout" class="nav-link btn-login"><i class="fas fa-sign-out-alt"></i> Logout {{ username }}</a>
                     {% else %}
-                        <a href="/cadastro" class="nav-link btn-login" style="background: #ff4757;">Cadastre-se</a>
+                        <a href="/cadastro" class="nav-link btn-login" style="background: #0d6efd;">Cadastre-se</a>
                     {% endif %}
                 </li>
             </ul>
@@ -425,11 +425,11 @@
                 <span>Servidor <span class="status-value">Online</span></span>
             </div>
             <div class="status-item">
-                <i class="fas fa-users" style="color: #ff8c94;"></i>
+                <i class="fas fa-users" style="color: #4fc3f7;"></i>
                 <span><span class="status-value" id="playerCount">247</span> jogadores</span>
             </div>
             <div class="status-item">
-                <i class="fas fa-star" style="color: #ff4757;"></i>
+                <i class="fas fa-star" style="color: #0d6efd;"></i>
                 <span>Versão <span class="status-value">1.21</span></span>
             </div>
         </div>
@@ -471,7 +471,7 @@
                         required
                         minlength="3"
                         maxlength="20"
-                    >
+                    />
                 </div>
 
                 <div class="form-group">
@@ -484,7 +484,7 @@
                         name="email" 
                         placeholder="seu@email.com"
                         required
-                    >
+                    />
                 </div>
 
                 <div class="form-group">
@@ -498,7 +498,7 @@
                         placeholder="Crie uma senha forte"
                         required
                         minlength="6"
-                    >
+                    />
                 </div>
 
                 <div class="form-group">
@@ -512,7 +512,7 @@
                         placeholder="Confirme sua senha"
                         required
                         minlength="6"
-                    >
+                    />
                 </div>
 
                 <button type="submit" class="btn-cadastro">
