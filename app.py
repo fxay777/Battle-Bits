@@ -66,88 +66,146 @@ def carrinho():
         mp_public_key=MP_PUBLIC_KEY,
     )
 
-@app.route('/forum', methods=['GET', 'POST'])
+POSTS_FILE = 'posts.json'
+
+FORUM_CATEGORIES = {
+    'ideias': {
+        'title': 'Aba Ideias',
+        'subtitle': 'Sugira melhorias para o nosso servidor',
+        'icon': 'fas fa-lightbulb',
+        'desc': 'Deixe sua sugestão ou projeto para melhorar a nossa comunidade.',
+        'admin_only_post': False,
+    },
+    'report': {
+        'title': 'Aba Report / Denúncias',
+        'subtitle': 'Denuncie bugs ou jogadores mal-intencionados',
+        'icon': 'fas fa-bug',
+        'desc': 'Encontrou trapaceiros ou falhas no mapa? Abra uma denúncia aqui para a Staff.',
+        'admin_only_post': False,
+    },
+    'duvidas': {
+        'title': 'Aba Dúvidas',
+        'subtitle': 'Central de ajuda ao jogador',
+        'icon': 'fas fa-question-circle',
+        'desc': 'Tem alguma dúvida sobre mecânicas, compras ou comandos? Pergunte aqui.',
+        'admin_only_post': False,
+    },
+    'novidades': {
+        'title': 'Aba Novidades',
+        'subtitle': 'Informativos e atualizações oficiais',
+        'icon': 'fas fa-bullhorn',
+        'desc': 'Fique por dentro de tudo o que nossa equipe adicionou ou alterou na rede.',
+        'admin_only_post': True,
+    },
+}
+
+
+def load_posts():
+    try:
+        if os.path.exists(POSTS_FILE):
+            with open(POSTS_FILE, 'r', encoding='utf-8') as f:
+                posts = json.load(f)
+                # Compatibilidade com posts antigos sem categoria
+                for p in posts:
+                    p.setdefault('category', 'novidades')
+                    p.setdefault('comments', [])
+                return posts
+    except Exception as e:
+        print(f'Erro ao ler posts.json: {e}')
+    return []
+
+
+def save_posts(posts):
+    with open(POSTS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(posts, f, indent=2, ensure_ascii=False)
+
+
+@app.route('/forum')
 def forum():
-    posts_file = 'posts.json'
     is_admin = session.get('admin', False)
     username = session.get('username', 'Visitante')
-    
+    posts = load_posts()
+    counts = {cat: sum(1 for p in posts if p.get('category') == cat) for cat in FORUM_CATEGORIES}
+    return render_template('forum.html', categories=FORUM_CATEGORIES, counts=counts, is_admin=is_admin, username=username)
+
+
+@app.route('/forum/<categoria>', methods=['GET', 'POST'])
+def forum_categoria(categoria):
+    if categoria not in FORUM_CATEGORIES:
+        return redirect(url_for('forum'))
+
+    cat_info = FORUM_CATEGORIES[categoria]
+    is_admin = session.get('admin', False)
+    username = session.get('username', 'Visitante')
+    logged_in = username != 'Visitante'
+    pode_postar = logged_in and (is_admin or not cat_info['admin_only_post'])
+
     if request.method == 'POST':
-        if is_admin:
-            titulo = request.form.get('titulo')
-            conteudo = request.form.get('conteudo')
-            
-            if titulo and conteudo:
-                try:
-                    posts = []
-                    if os.path.exists(posts_file):
-                        with open(posts_file, 'r', encoding='utf-8') as f:
-                            posts = json.load(f)
-                    
-                    new_post = {
-                        'id': len(posts) + 1,
-                        'title': titulo,
-                        'content': conteudo,
-                        'created_by': username,
-                        'is_staff': True,
-                        'timestamp': datetime.now().isoformat(),
-                        'comments': []
-                    }
-                    posts.append(new_post)
-                    
-                    with open(posts_file, 'w', encoding='utf-8') as f:
-                        json.dump(posts, f, indent=2, ensure_ascii=False)
-                    
-                except Exception as e:
-                    print(f'Error: {e}')
-    
-    try:
-        if os.path.exists(posts_file):
-            with open(posts_file, 'r', encoding='utf-8') as f:
-                posts = json.load(f)
-        else:
-            posts = []
-    except:
-        posts = []
-    
+        if not pode_postar:
+            return redirect(url_for('login'))
+
+        titulo = request.form.get('titulo', '').strip()
+        conteudo = request.form.get('conteudo', '').strip()
+        if titulo and conteudo:
+            posts = load_posts()
+            new_id = (max([p['id'] for p in posts], default=0)) + 1
+            posts.append({
+                'id': new_id,
+                'category': categoria,
+                'title': titulo,
+                'content': conteudo,
+                'created_by': username,
+                'is_staff': is_admin,
+                'timestamp': datetime.now().isoformat(),
+                'comments': [],
+            })
+            save_posts(posts)
+        return redirect(url_for('forum_categoria', categoria=categoria))
+
+    posts = [p for p in load_posts() if p.get('category') == categoria]
     posts.reverse()
-    return render_template('forum.html', posts=posts, is_admin=is_admin, username=username)
+    return render_template(
+        'forum_categoria.html',
+        posts=posts,
+        categoria=categoria,
+        cat_info=cat_info,
+        pode_postar=pode_postar,
+        logged_in=logged_in,
+        is_admin=is_admin,
+        username=username,
+    )
+
 
 @app.route('/forum/comment/<int:post_id>', methods=['POST'])
 def add_comment(post_id):
-    posts_file = 'posts.json'
     username = session.get('username', 'Visitante')
-    
+
     if username == 'Visitante':
         return redirect(url_for('login'))
-    
+
     comment_text = request.form.get('comment_text', '').strip()
-    
+    posts = load_posts()
+    categoria = 'ideias'
+
     if comment_text:
-        try:
-            posts = []
-            if os.path.exists(posts_file):
-                with open(posts_file, 'r', encoding='utf-8') as f:
-                    posts = json.load(f)
-            
-            for post in posts:
-                if post['id'] == post_id:
-                    new_comment = {
-                        'author': username,
-                        'is_staff': session.get('admin', False),
-                        'text': comment_text,
-                        'timestamp': datetime.now().isoformat()
-                    }
-                    post['comments'].append(new_comment)
-                    break
-            
-            with open(posts_file, 'w', encoding='utf-8') as f:
-                json.dump(posts, f, indent=2, ensure_ascii=False)
-        
-        except Exception as e:
-            print(f'Error: {e}')
-    
-    return redirect(url_for('forum'))
+        for post in posts:
+            if post['id'] == post_id:
+                categoria = post.get('category', 'ideias')
+                post['comments'].append({
+                    'author': username,
+                    'is_staff': session.get('admin', False),
+                    'text': comment_text,
+                    'timestamp': datetime.now().isoformat(),
+                })
+                break
+        save_posts(posts)
+    else:
+        for post in posts:
+            if post['id'] == post_id:
+                categoria = post.get('category', 'ideias')
+                break
+
+    return redirect(url_for('forum_categoria', categoria=categoria))
 
 @app.route('/staffs')
 def staffs():

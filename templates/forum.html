@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ===== CORES ATUALIZADAS: AZUL E PRETO ===== */
+        /* ===== CORES: AZUL E PRETO ===== */
         :root {
             --bg-dark: #0a0a0a;
             --bg-card: #111111;
@@ -250,27 +250,6 @@
             gap: 24px;
         }
 
-        /* Botão voltar */
-        .btn-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 8px 16px;
-            border-radius: 50px;
-            background: rgba(13, 110, 253, 0.08);
-            width: fit-content;
-        }
-        .btn-back:hover {
-            background: rgba(13, 110, 253, 0.15);
-            color: #fff;
-        }
-
         /* Cartão de categoria */
         .forum-category {
             background: var(--bg-card);
@@ -309,6 +288,8 @@
             transition: background 0.2s ease, transform 0.2s;
             cursor: pointer;
             gap: 20px;
+            text-decoration: none;
+            color: inherit;
         }
         .forum-item:last-child {
             border-bottom: none;
@@ -345,126 +326,15 @@
             color: var(--text-muted);
             line-height: 1.4;
         }
-
-        /* Lista de posts */
-        .posts-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 24px;
-        }
-        .post-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 20px 24px;
-            transition: var(--transition);
-        }
-        .post-card:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: var(--border-light);
-        }
-        .post-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-        .post-author {
-            color: var(--primary);
-            font-weight: 700;
-        }
-        .post-content {
-            font-size: 0.9rem;
-            color: var(--text);
-            line-height: 1.6;
-        }
-        .no-posts {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px;
-            font-size: 0.95rem;
-        }
-
-        /* Formulário */
-        .comment-form-container {
-            padding: 24px;
-            background: rgba(13, 110, 253, 0.03);
-            border-top: 1px solid var(--border);
-        }
-        .form-title {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 18px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #fff;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .forum-input,
-        .forum-textarea {
-            width: 100%;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px;
-            color: #fff;
-            font-size: 0.9rem;
-            font-family: 'Poppins', sans-serif;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .forum-input:focus,
-        .forum-textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
-        .forum-textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        .btn-submit {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            align-self: flex-start;
-            transition: var(--transition);
-            box-shadow: 0 0 15px var(--primary-glow);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-submit:hover {
-            background: #0b5ed7;
-            box-shadow: 0 0 25px rgba(13, 110, 253, 0.6);
-            transform: translateY(-1px);
-        }
-        .auth-alert {
-            background: rgba(13, 110, 253, 0.08);
-            border: 1px solid rgba(13, 110, 253, 0.25);
-            padding: 16px 20px;
-            border-radius: 10px;
+        .forum-count {
+            margin-left: auto;
+            background: rgba(13, 110, 253, 0.15);
             color: var(--accent);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .auth-alert i {
-            font-size: 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 50px;
+            flex-shrink: 0;
         }
 
         /* ============ FOOTER ============ */
@@ -523,7 +393,7 @@
                 <li><a href="/" class="nav-link">Início</a></li>
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link active">Fórum</a></li>
-                <li><a href="/staffs" class="nav-link">Staffs</a></li>               
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
                 <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 <li>
                     {% if session.get('username') %}
@@ -559,10 +429,30 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO DO FÓRUM -->
+    <!-- CONTEÚDO DO FÓRUM: LISTA DE TÓPICOS/CANAIS -->
     <section class="forum-section">
-        <div class="forum-container reveal" id="forumContainer">
-            <!-- Preenchido dinamicamente -->
+        <div class="forum-container reveal visible">
+            <div class="forum-category">
+                <div class="category-header">
+                    <i class="fas fa-comments"></i> Canais da Comunidade
+                </div>
+                {% for key, cat in categories.items() %}
+                <a class="forum-item" href="{{ url_for('forum_categoria', categoria=key) }}">
+                    <div class="forum-icon"><i class="{{ cat.icon }}"></i></div>
+                    <div class="forum-info">
+                        <div class="forum-title">{{ cat.title }}</div>
+                        <div class="forum-desc">{{ cat.desc }}</div>
+                    </div>
+                    <span class="forum-count">{{ counts.get(key, 0) }} tópico{{ 's' if counts.get(key, 0) != 1 else '' }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% if not session.get('username') %}
+            <div class="forum-category" style="padding: 20px 24px; color: var(--text-muted); font-size: 0.9rem;">
+                <i class="fas fa-lock" style="color: var(--accent); margin-right: 8px;"></i>
+                Faça <a href="/login" style="color: var(--accent);">login</a> para abrir novos tópicos e comentar.
+            </div>
+            {% endif %}
         </div>
     </section>
 
@@ -573,6 +463,8 @@
             <i class="fas fa-server"></i>
         </div>
     </footer>
+
+    {% include 'botpress_widget.html' %}
 
     <script>
         // ============ HAMBURGER MENU ============
@@ -596,149 +488,6 @@
             else navbar.classList.remove('scrolled');
         });
 
-        // ============ SISTEMA DE FÓRUM ============
-        let isLoggedIn = false; // Simulação de login
-        const forumData = {
-            ideias: [],
-            report: [],
-            duvidas: [],
-            novidades: []
-        };
-
-        function showMainCategories() {
-            const container = document.getElementById('forumContainer');
-            container.innerHTML = `
-                <div class="forum-category">
-                    <div class="category-header">
-                        <i class="fas fa-comments"></i> Canais da Comunidade
-                    </div>
-                    <div class="forum-item" onclick="openCategory('ideias', 'Aba Ideias', 'Sugira melhorias para o nosso servidor')">
-                        <div class="forum-icon"><i class="fas fa-lightbulb"></i></div>
-                        <div class="forum-info">
-                            <div class="forum-title">Aba Ideias</div>
-                            <div class="forum-desc">Deixe sua sugestão ou projeto para melhorar a nossa comunidade.</div>
-                        </div>
-                    </div>
-                    <div class="forum-item" onclick="openCategory('report', 'Aba Report', 'Denuncie bugs ou jogadores mal-intencionados')">
-                        <div class="forum-icon"><i class="fas fa-bug"></i></div>
-                        <div class="forum-info">
-                            <div class="forum-title">Aba Report</div>
-                            <div class="forum-desc">Encontrou trapaceiros ou falhas no mapa? Reporte direto aqui para a Staff.</div>
-                        </div>
-                    </div>
-                    <div class="forum-item" onclick="openCategory('duvidas', 'Aba Dúvidas', 'Central de ajuda ao jogador')">
-                        <div class="forum-icon"><i class="fas fa-question-circle"></i></div>
-                        <div class="forum-info">
-                            <div class="forum-title">Aba Dúvidas</div>
-                            <div class="forum-desc">Tem alguma dúvida sobre mecânicas, compras ou comandos? Pergunte aqui.</div>
-                        </div>
-                    </div>
-                    <div class="forum-item" onclick="openCategory('novidades', 'Aba Novidades', 'Informativos e atualizações oficiais')">
-                        <div class="forum-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="forum-info">
-                            <div class="forum-title">Aba Novidades</div>
-                            <div class="forum-desc">Fique por dentro de tudo o que nossa equipe adicionou ou alterou na rede.</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function openCategory(key, title, subtitle) {
-            const container = document.getElementById('forumContainer');
-            const posts = forumData[key] || [];
-
-            let postsHTML = '';
-            if (posts.length === 0) {
-                postsHTML = `<div class="no-posts"><i class="far fa-folder-open" style="margin-right: 8px;"></i> Nenhuma publicação ainda. Seja o primeiro a postar!</div>`;
-            } else {
-                posts.forEach(post => {
-                    postsHTML += `
-                        <div class="post-card">
-                            <div class="post-meta">
-                                <span>Tópico: <strong>${post.title}</strong></span>
-                                <span>Por: <span class="post-author">${post.author}</span> • ${post.date}</span>
-                            </div>
-                            <div class="post-content">${post.content}</div>
-                        </div>
-                    `;
-                });
-            }
-
-            let formHTML = '';
-            if (isLoggedIn) {
-                formHTML = `
-                    <div class="comment-form-container">
-                        <div class="form-title"><i class="fas fa-pen"></i> Criar nova publicação</div>
-                        <div class="input-group">
-                            <input type="text" id="postTitle" class="forum-input" placeholder="Título da sua publicação...">
-                            <textarea id="postContent" class="forum-textarea" placeholder="Escreva seu texto aqui..."></textarea>
-                            <button class="btn-submit" onclick="submitPost('${key}', '${title}', '${subtitle}')"><i class="fas fa-paper-plane"></i> Publicar</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                formHTML = `
-                    <div class="comment-form-container">
-                        <div class="auth-alert">
-                            <i class="fas fa-lock"></i>
-                            <span>Você precisa estar <strong>logado</strong> para publicar. Clique em "Cadastre-se" para simular o login.</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = `
-                <a class="btn-back" onclick="showMainCategories()"><i class="fas fa-arrow-left"></i> Voltar para os canais</a>
-                <div class="forum-category">
-                    <div class="category-header">
-                        <i class="fas fa-folder-open"></i> ${title} <span style="font-size:0.75rem; color:var(--text-muted); margin-left:8px; text-transform:none;">— ${subtitle}</span>
-                    </div>
-                    <div class="posts-list">
-                        ${postsHTML}
-                    </div>
-                    ${formHTML}
-                </div>
-            `;
-        }
-
-        function submitPost(key, title, subtitle) {
-            const titleInput = document.getElementById('postTitle')?.value.trim();
-            const contentInput = document.getElementById('postContent')?.value.trim();
-            if (!titleInput || !contentInput) {
-                alert('Preencha todos os campos antes de publicar.');
-                return;
-            }
-            forumData[key].push({
-                author: 'Jogador_Logado',
-                date: 'Agora mesmo',
-                title: titleInput,
-                content: contentInput
-            });
-            openCategory(key, title, subtitle);
-        }
-
-        function toggleAuth() {
-            isLoggedIn = !isLoggedIn;
-            const btn = document.getElementById('loginBtn');
-            if (isLoggedIn) {
-                btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout (simulado)';
-                btn.style.background = '#2e2a47';
-            } else {
-                btn.innerHTML = '<i class="fas fa-user"></i> Cadastre-se';
-                btn.style.background = '';
-            }
-            // Se estiver dentro de uma categoria, atualiza a interface
-            const currentCategory = document.querySelector('.category-header');
-            if (currentCategory) {
-                const headerText = currentCategory.textContent.trim();
-                if (headerText.includes('Ideias')) openCategory('ideias', 'Aba Ideias', 'Sugira melhorias');
-                else if (headerText.includes('Report')) openCategory('report', 'Aba Report', 'Denuncie bugs');
-                else if (headerText.includes('Dúvidas')) openCategory('duvidas', 'Aba Dúvidas', 'Central de ajuda');
-                else if (headerText.includes('Novidades')) openCategory('novidades', 'Aba Novidades', 'Informativos oficiais');
-            }
-        }
-
         // ============ SIMULAÇÃO JOGADORES ONLINE ============
         const playerCountEl = document.getElementById('playerCount');
         setInterval(() => {
@@ -746,21 +495,6 @@
             const variation = Math.floor(Math.random() * 35) - 8;
             playerCountEl.textContent = Math.max(180, Math.min(310, base + variation));
         }, 8000);
-
-        // ============ SCROLL REVEAL ============
-        const revealElements = document.querySelectorAll('.reveal');
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-        revealElements.forEach(el => revealObserver.observe(el));
-
-        // Inicialização
-        window.onload = showMainCategories;
     </script>
 </body>
 </html>

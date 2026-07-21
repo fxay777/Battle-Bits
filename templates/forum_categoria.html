@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cat_info.title }} - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a2e;
+            --primary: #0d6efd;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
+            --text: #e0e0e0;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============ NAVBAR (igual ao resto do site) ============ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            padding: 0 20px;
+        }
+        .navbar.scrolled { background: rgba(10, 10, 10, 0.95); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .nav-logo i { background: none; -webkit-text-fill-color: var(--primary); font-size: 1.6rem; }
+        .nav-menu { display: flex; list-style: none; gap: 6px; align-items: center; }
+        .nav-link {
+            color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            padding: 10px 16px; border-radius: 50px; transition: var(--transition); border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--accent); }
+        .btn-login {
+            background: var(--primary) !important; color: #fff !important; font-weight: 600;
+            padding: 10px 22px !important; box-shadow: 0 0 20px var(--primary-glow); transition: var(--transition);
+            border-radius: 50px; text-decoration: none; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-login:hover { background: #0b5ed7 !important; box-shadow: 0 0 35px rgba(13, 110, 253, 0.7); }
+        .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
+        .hamburger .bar { width: 26px; height: 3px; background: #fff; border-radius: 3px; transition: var(--transition); }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+                background: rgba(10, 10, 10, 0.96); backdrop-filter: blur(20px);
+                flex-direction: column; padding: 90px 30px 30px; gap: 8px; transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active { right: 0; }
+            .hamburger { display: flex; }
+            .nav-link { font-size: 1rem; padding: 14px 18px; width: 100%; border-radius: 10px; }
+        }
+
+        /* ============ CONTEÚDO ============ */
+        .forum-section { padding: 140px 20px 60px; flex: 1; display: flex; justify-content: center; }
+        .forum-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 24px; }
+
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px;
+            background: rgba(13, 110, 253, 0.08); width: fit-content; transition: var(--transition);
+        }
+        .btn-back:hover { background: rgba(13, 110, 253, 0.15); color: #fff; }
+
+        .forum-category { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .category-header {
+            background: rgba(13, 110, 253, 0.05); padding: 18px 24px; font-family: 'Montserrat', sans-serif;
+            font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border); color: #fff; display: flex; align-items: center; gap: 12px;
+        }
+        .category-header i { color: var(--primary); }
+        .category-sub { font-size: 0.75rem; color: var(--text-muted); margin-left: 8px; text-transform: none; font-weight: 500; }
+
+        .posts-list { display: flex; flex-direction: column; gap: 16px; padding: 24px; }
+        .post-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; }
+        .post-meta {
+            display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 0.75rem;
+            color: var(--text-muted); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+        }
+        .post-author { color: var(--primary); font-weight: 700; }
+        .post-author.staff { color: #ef4444; }
+        .post-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .post-content { font-size: 0.9rem; color: var(--text); line-height: 1.6; margin-bottom: 4px; }
+        .no-posts { text-align: center; color: var(--text-muted); padding: 40px; font-size: 0.95rem; }
+
+        /* Comentários */
+        .comments-list { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .comment-item {
+            background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem;
+        }
+        .comment-meta { display: flex; gap: 8px; margin-bottom: 4px; font-size: 0.75rem; color: var(--text-muted); }
+        .comment-author { color: var(--accent); font-weight: 700; }
+        .comment-author.staff { color: #ef4444; }
+        .no-comments { font-size: 0.8rem; color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+        .comment-form { margin-top: 14px; display: flex; gap: 10px; }
+        .comment-form input {
+            flex: 1; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 14px; color: #fff; font-size: 0.85rem; font-family: inherit; outline: none;
+        }
+        .comment-form input:focus { border-color: var(--primary); box-shadow: 0 0 12px var(--primary-glow); }
+        .btn-comment {
+            background: var(--primary); color: #fff; border: none; padding: 0 18px; border-radius: 8px;
+            font-weight: 700; cursor: pointer; transition: var(--transition);
+        }
+        .btn-comment:hover { background: #0b5ed7; }
+
+        /* Formulário de novo tópico */
+        .comment-form-container { padding: 24px; background: rgba(13, 110, 253, 0.03); border-top: 1px solid var(--border); }
+        .form-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
+        .input-group { display: flex; flex-direction: column; gap: 14px; }
+        .forum-input, .forum-textarea {
+            width: 100%; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px;
+            padding: 14px; color: #fff; font-size: 0.9rem; font-family: 'Poppins', sans-serif; outline: none; transition: border-color 0.2s;
+        }
+        .forum-input:focus, .forum-textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .forum-textarea { resize: vertical; min-height: 120px; }
+        .btn-submit {
+            background: var(--primary); color: #fff; border: none; padding: 12px 28px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; align-self: flex-start; transition: var(--transition);
+            box-shadow: 0 0 15px var(--primary-glow); display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-submit:hover { background: #0b5ed7; box-shadow: 0 0 25px rgba(13, 110, 253, 0.6); }
+        .auth-alert {
+            background: rgba(13, 110, 253, 0.08); border: 1px solid rgba(13, 110, 253, 0.25); padding: 16px 20px;
+            border-radius: 10px; color: var(--accent); font-size: 0.9rem; display: flex; align-items: center; gap: 12px;
+        }
+        .auth-alert a { color: #fff; font-weight: 700; }
+
+        .main-footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 24px 20px; margin-top: auto; }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; gap: 10px;
+        }
+        .footer-bottom i { color: var(--primary); opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Battle Bits</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link active">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
+                <li>
+                    {% if session.get('username') %}
+                        <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
+                    {% else %}
+                        <a href="/login" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a>
+                    {% endif %}
+                </li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="forum-section">
+        <div class="forum-container">
+            <a class="btn-back" href="{{ url_for('forum') }}"><i class="fas fa-arrow-left"></i> Voltar para os canais</a>
+
+            <div class="forum-category">
+                <div class="category-header">
+                    <i class="{{ cat_info.icon }}"></i> {{ cat_info.title }}
+                    <span class="category-sub">— {{ cat_info.subtitle }}</span>
+                </div>
+
+                <div class="posts-list">
+                    {% if posts|length == 0 %}
+                        <div class="no-posts"><i class="far fa-folder-open" style="margin-right: 8px;"></i> Nenhum tópico ainda. Seja o primeiro a postar!</div>
+                    {% else %}
+                        {% for post in posts %}
+                        <div class="post-card">
+                            <div class="post-meta">
+                                <span>Por: <span class="post-author {{ 'staff' if post.is_staff else '' }}">{{ post.created_by }}</span>{% if post.is_staff %} <i class="fas fa-shield-alt" title="Staff" style="color:#ef4444;"></i>{% endif %}</span>
+                                <span>{{ post.timestamp[:16].replace('T', ' às ') }}</span>
+                            </div>
+                            <div class="post-title">{{ post.title }}</div>
+                            <div class="post-content">{{ post.content }}</div>
+
+                            <div class="comments-list">
+                                {% if post.comments|length == 0 %}
+                                    <div class="no-comments">Nenhum comentário ainda.</div>
+                                {% else %}
+                                    {% for c in post.comments %}
+                                    <div class="comment-item">
+                                        <div class="comment-meta">
+                                            <span class="comment-author {{ 'staff' if c.is_staff else '' }}">{{ c.author }}</span>
+                                            <span>{{ c.timestamp[:16].replace('T', ' às ') }}</span>
+                                        </div>
+                                        <div>{{ c.text }}</div>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+
+                                {% if logged_in %}
+                                <form class="comment-form" method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+                                    <input type="text" name="comment_text" placeholder="Escreva um comentário..." required maxlength="500">
+                                    <button type="submit" class="btn-comment"><i class="fas fa-paper-plane"></i></button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {% if pode_postar %}
+                <div class="comment-form-container">
+                    <div class="form-title"><i class="fas fa-pen"></i> Criar novo tópico</div>
+                    <form method="POST" action="{{ url_for('forum_categoria', categoria=categoria) }}">
+                        <div class="input-group">
+                            <input type="text" name="titulo" class="forum-input" placeholder="Título da sua publicação..." required maxlength="120">
+                            <textarea name="conteudo" class="forum-textarea" placeholder="Escreva seu texto aqui..." required maxlength="3000"></textarea>
+                            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Publicar</button>
+                        </div>
+                    </form>
+                </div>
+                {% elif not logged_in %}
+                <div class="comment-form-container">
+                    <div class="auth-alert">
+                        <i class="fas fa-lock"></i>
+                        <span>Você precisa estar <strong>logado</strong> para publicar e comentar. <a href="/login">Fazer login</a></span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="comment-form-container">
+                    <div class="auth-alert">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Somente a Staff pode abrir novos tópicos nesta aba. Você ainda pode comentar nos tópicos existentes.</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits © 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    {% include 'botpress_widget.html' %}
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+    </script>
+</body>
+</html>
