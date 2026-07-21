@@ -248,6 +248,101 @@
             background: rgba(220, 20, 60, 0.1);
         }
 
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .qty-control input[type="number"] {
+            width: 56px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            padding: 6px 8px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .qty-control input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .btn-qty-refresh {
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .btn-qty-refresh:hover {
+            background: var(--primary-hover);
+        }
+        .btn-qty-refresh.spinning i {
+            animation: spin 0.6s linear;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============ CUPOM DE APOIADOR ============ */
+        .coupon-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .coupon-row input {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .coupon-row input:focus {
+            box-shadow: inset 0 0 0 2px var(--primary);
+        }
+        .btn-aplicar-cupom {
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            padding: 0 24px;
+            border-radius: var(--radius);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-aplicar-cupom:hover {
+            background: var(--primary-hover);
+        }
+        .coupon-applied {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #4fc3f7;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .coupon-applied.show {
+            display: flex;
+        }
+        .coupon-applied a {
+            color: var(--text-muted);
+            text-decoration: underline;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
         /* ============ SEÇÕES ============ */
         .section-title {
             margin: 40px 0 20px;
@@ -605,8 +700,15 @@
                             <td>{{ loop.index }}</td>
                             <td><i class="{{ item.icon if item.get('icon') else 'fas fa-cube' }} item-icon"></i></td>
                             <td><span class="item-name">{{ item.name }}</span></td>
-                            <td>{{ item.quantity }}</td>
-                            <td><span class="item-price">R$ {{ "%.2f"|format(item.subtotal) }}</span></td>
+                            <td>
+                                <div class="qty-control">
+                                    <input type="number" min="1" value="{{ item.quantity }}" id="qty-{{ item.id }}-{{ item.type }}">
+                                    <button class="btn-qty-refresh" onclick="updateQuantity('{{ item.id }}', '{{ item.type }}', this)" title="Atualizar quantidade">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td><span class="item-price" id="subtotal-{{ item.id }}-{{ item.type }}">R$ {{ "%.2f"|format(item.subtotal) }}</span></td>
                             <td>
                                 <button class="btn-remover" onclick="removeFromCart('{{ item.id }}', '{{ item.type }}')" title="Remover item">
                                     <i class="fas fa-times"></i>
@@ -637,7 +739,11 @@
             <div class="totals-box">
                 <div class="totals-row">
                     <span class="label">Subtotal</span>
-                    <span class="value">R$ {{ "%.2f"|format(total) if total else "0,00" }}</span>
+                    <span class="value" id="totalSubtotal">R$ {{ "%.2f"|format(total) if total else "0,00" }}</span>
+                </div>
+                <div class="totals-row" id="discountRow" style="{{ 'display:flex;' if coupon else 'display:none;' }}">
+                    <span class="label">Desconto ({{ coupon.code if coupon else '' }})</span>
+                    <span class="value" id="discountValue" style="color:#4fc3f7;">- R$ {{ "%.2f"|format(discount_value) if discount_value else "0,00" }}</span>
                 </div>
                 <div class="totals-row">
                     <span class="label">Taxas</span>
@@ -645,7 +751,30 @@
                 </div>
                 <div class="totals-row total">
                     <span class="label" style="font-size:1rem;">Total</span>
-                    <span class="value">R$ {{ "%.2f"|format(total) if total else "0,00" }}</span>
+                    <span class="value" id="totalFinal">R$ {{ "%.2f"|format(final_total) if final_total is defined else "%.2f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CÓDIGO DE APOIADOR -->
+        <div class="section-title">
+            <h3><i class="fas fa-info-circle"></i> O que você gostaria de utilizar?</h3>
+            <p>Escolha uma das opções abaixo que você queira utilizar para este pagamento</p>
+        </div>
+
+        <div class="accordion-block">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Utilizar código de apoiador <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="form-content">
+                <div class="coupon-row">
+                    <input type="text" id="couponCode" placeholder="Digite seu código de apoiador">
+                    <button type="button" class="btn-aplicar-cupom" onclick="applyCoupon()">Aplicar</button>
+                </div>
+                <div class="coupon-applied {{ 'show' if coupon else '' }}" id="couponApplied">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="couponMsg">{% if coupon %}Código {{ coupon.code }} aplicado! {{ (coupon.discount * 100)|int }}% de desconto.{% endif %}</span>
+                    <a onclick="removeCoupon()">remover</a>
                 </div>
             </div>
         </div>
@@ -698,7 +827,7 @@
                         <label class="payment-method-label">
                             <input type="radio" name="payment_method" value="mercadopago" checked required>
                             <div class="payment-box">
-                                <img src="https://logopng.com.br/logos/mercado-pago-42.png" alt="Mercado Pago" style="height: 35px;">
+                                <img src="{{ url_for('static', filename='img/mercado-pago-logo.png') }}" alt="Mercado Pago" style="height: 35px;">
                                 <span>Mercado Pago</span>
                                 <small>Pix, Cartão ou Boleto</small>
                             </div>
@@ -757,6 +886,75 @@
                 if (icon) icon.style.transform = 'rotate(180deg)';
             }
         });
+
+        // ===== ATUALIZAR QUANTIDADE =====
+        function updateQuantity(itemId, itemType, btn) {
+            const input = document.getElementById(`qty-${itemId}-${itemType}`);
+            let quantity = parseInt(input.value, 10);
+            if (!quantity || quantity < 1) {
+                quantity = 1;
+                input.value = 1;
+            }
+
+            btn.classList.add('spinning');
+            fetch('/api/cart/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: itemId, type: itemType, quantity: quantity })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.classList.remove('spinning');
+                if (data.success) {
+                    const subtotalEl = document.getElementById(`subtotal-${itemId}-${itemType}`);
+                    if (subtotalEl) subtotalEl.textContent = `R$ ${data.subtotal.toFixed(2).replace('.', ',')}`;
+                    showNotification('Quantidade atualizada', 'success');
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showNotification(data.message || 'Erro ao atualizar quantidade', 'error');
+                }
+            })
+            .catch(() => {
+                btn.classList.remove('spinning');
+                showNotification('Erro ao atualizar quantidade', 'error');
+            });
+        }
+
+        // ===== CÓDIGO DE APOIADOR =====
+        function applyCoupon() {
+            const code = document.getElementById('couponCode').value.trim();
+            if (!code) {
+                showNotification('Digite um código de apoiador', 'error');
+                return;
+            }
+            fetch('/api/cart/coupon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showNotification(data.message || 'Código inválido', 'error');
+                }
+            })
+            .catch(() => showNotification('Erro ao aplicar código', 'error'));
+        }
+
+        function removeCoupon() {
+            fetch('/api/cart/coupon/remove', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Código removido', 'success');
+                    setTimeout(() => location.reload(), 500);
+                }
+            })
+            .catch(() => showNotification('Erro ao remover código', 'error'));
+        }
 
         // ===== REMOVER ITEM =====
         function removeFromCart(itemId, itemType) {

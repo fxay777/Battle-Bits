@@ -55,6 +55,17 @@ def init_db():
         )
     ''')
     
+    # Colunas extras de pagamento (adicionadas depois - protegido para bancos já existentes)
+    for coluna, tipo in [
+        ('preference_id', 'TEXT'),
+        ('payment_id', 'TEXT'),
+        ('buyer_email', 'TEXT'),
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE purchases ADD COLUMN {coluna} {tipo}')
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
+
     # Insere produtos padrão (se não existirem)
     default_products = [
         ('vip_master', 'VIP MASTER', 69.90, 'vip', 'ranks', 'fa-crown', 'Todos os benefícios exclusivos', 'Mensal', '["/fly", "/god", "10 homes"]', 1),
@@ -116,17 +127,47 @@ def get_user_by_id(user_id):
     conn.close()
     return user
 
-def create_purchase(user_id, items_json, total_price, payment_method, status="Aprovado"):
+def create_purchase(user_id, items_json, total_price, payment_method, status="pending", preference_id=None, buyer_email=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO purchases (user_id, items_json, total_price, payment_method, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_id, items_json, total_price, payment_method, status, datetime.now().isoformat())
+        """INSERT INTO purchases
+           (user_id, items_json, total_price, payment_method, status, created_at, preference_id, buyer_email)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (user_id, items_json, total_price, payment_method, status, datetime.now().isoformat(), preference_id, buyer_email)
     )
     conn.commit()
     purchase_id = cursor.lastrowid
     conn.close()
     return purchase_id
+
+
+def set_purchase_preference(purchase_id, preference_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE purchases SET preference_id = ? WHERE id = ?", (preference_id, purchase_id))
+    conn.commit()
+    conn.close()
+
+
+def update_purchase_status(purchase_id, status, payment_id=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if payment_id:
+        cursor.execute("UPDATE purchases SET status = ?, payment_id = ? WHERE id = ?", (status, payment_id, purchase_id))
+    else:
+        cursor.execute("UPDATE purchases SET status = ? WHERE id = ?", (status, purchase_id))
+    conn.commit()
+    conn.close()
+
+
+def get_purchase_by_id(purchase_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM purchases WHERE id = ?", (purchase_id,))
+    purchase = cursor.fetchone()
+    conn.close()
+    return purchase
 
 def get_user_purchases(user_id):
     conn = get_db_connection()

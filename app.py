@@ -3,13 +3,23 @@ import json
 import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+import mercadopago
 import database
+
+load_dotenv()  # lê o arquivo .env (NUNCA comitado) para pegar as chaves do Mercado Pago
 
 app = Flask(__name__)
 app.secret_key = 'battle-bits-super-secret-key-2026-change-in-prod'
 
 # Initialize database
 database.init_db()
+
+# ============ MERCADO PAGO ============
+# Access Token e Public Key vêm de variáveis de ambiente (.env), nunca hardcoded no código.
+MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', '')
+MP_PUBLIC_KEY = os.environ.get('MP_PUBLIC_KEY', '')
+sdk = mercadopago.SDK(MP_ACCESS_TOKEN) if MP_ACCESS_TOKEN else None
 
 @app.context_processor
 def inject_user_context():
@@ -29,14 +39,8 @@ def vips():
 
 @app.route('/loja')
 def loja():
-    try:
-        with open('shop.json', 'r', encoding='utf-8') as f:
-            shop_data = json.load(f)
-    except Exception as e:
-        print(f"Error loading shop.json: {e}")
-        shop_data = {'vips': [], 'shop': []}
-    
-    return render_template('shop.html', vips=shop_data.get('vips', []), items=shop_data.get('shop', []))
+    # A loja de itens/clantags/medalhas passou a viver dentro da aba VIPs.
+    return redirect(url_for('vips'))
 
 @app.route('/carrinho')
 def carrinho():
@@ -47,8 +51,20 @@ def carrinho():
     for item in cart_items:
         item['subtotal'] = float(item['price']) * int(item['quantity'])
         total += item['subtotal']
-        
-    return render_template('cart.html', cart=cart_items, total=total)
+
+    coupon = session.get('coupon')
+    discount_value = round(total * coupon['discount'], 2) if coupon else 0.0
+    final_total = round(total - discount_value, 2)
+
+    return render_template(
+        'cart.html',
+        cart=cart_items,
+        total=total,
+        final_total=final_total,
+        coupon=coupon,
+        discount_value=discount_value,
+        mp_public_key=MP_PUBLIC_KEY,
+    )
 
 @app.route('/forum', methods=['GET', 'POST'])
 def forum():
@@ -195,7 +211,7 @@ def login():
                 session['admin'] = bool(user['is_admin'])
                 
                 if info_msg == 'checkout' and session.get('cart'):
-                    return redirect(url_for('checkout'))
+                    return redirect(url_for('carrinho'))
                 
                 return redirect(url_for('home'))
             else:
@@ -277,9 +293,81 @@ def cart_remove():
         
     return jsonify({'success': False, 'message': 'Item não encontrado no carrinho'}), 404
 
+@app.route('/api/cart/update', methods=['POST'])
+def cart_update():
+    data = request.json or {}
+    item_id = data.get('id')
+    item_type = data.get('type')
+    try:
+        quantity = int(data.get('quantity', 1))
+    except (TypeError, ValueError):
+        quantity = 1
+    quantity = max(1, quantity)
+
+    cart = session.get('cart', {})
+    cart_key = f"{item_id}_{item_type}"
+
+    if cart_key not in cart:
+        return jsonify({'success': False, 'message': 'Item não encontrado no carrinho'}), 404
+
+    cart[cart_key]['quantity'] = quantity
+    session['cart'] = cart
+    session.modified = True
+
+    subtotal = float(cart[cart_key]['price']) * quantity
+    total = sum(float(i['price']) * int(i['quantity']) for i in cart.values())
+    return jsonify({'success': True, 'subtotal': subtotal, 'total': total})
+
+
+# Códigos de apoiador válidos (demo). Pode migrar para o banco depois se quiser.
+DISCOUNT_CODES = {
+    'APOIA10': 0.10,
+    'BATTLE15': 0.15,
+}
+
+
+@app.route('/api/cart/coupon', methods=['POST'])
+def cart_coupon_apply():
+    data = request.get_json(silent=True) or {}
+    code = (data.get('code') or '').strip().upper()
+
+    if not code:
+        return jsonify({'success': False, 'message': 'Digite um código.'}), 400
+
+    discount = DISCOUNT_CODES.get(code)
+    if discount is None:
+        return jsonify({'success': False, 'message': 'Código de apoiador inválido ou expirado.'}), 404
+
+    session['coupon'] = {'code': code, 'discount': discount}
+    session.modified = True
+
+    cart = session.get('cart', {})
+    total = sum(float(i['price']) * int(i['quantity']) for i in cart.values())
+    discount_value = round(total * discount, 2)
+
+    return jsonify({
+        'success': True,
+        'code': code,
+        'discount_percent': int(discount * 100),
+        'discount_value': discount_value,
+        'total': round(total - discount_value, 2),
+        'message': f'Código {code} aplicado! {int(discount * 100)}% de desconto.',
+    })
+
+
+@app.route('/api/cart/coupon/remove', methods=['POST'])
+def cart_coupon_remove():
+    session.pop('coupon', None)
+    session.modified = True
+    cart = session.get('cart', {})
+    total = sum(float(i['price']) * int(i['quantity']) for i in cart.values())
+    return jsonify({'success': True, 'total': round(total, 2)})
+
+
 @app.route('/api/cart/clear', methods=['POST'])
 def cart_clear():
     session['cart'] = {}
+    session.pop('coupon', None)
     session.modified = True
     return jsonify({'success': True})
 
@@ -287,45 +375,159 @@ def cart_clear():
 #   CHECKOUT E PAGAMENTO
 # ============================================================
 
-@app.route('/checkout', methods=['GET', 'POST'])
-def checkout():
+@app.route('/api/checkout/process', methods=['POST'])
+def api_checkout_process():
     if not session.get('user_id'):
-        return redirect(url_for('login', msg='checkout'))
-        
+        return jsonify({'success': False, 'message': 'Você precisa estar logado para finalizar a compra.'}), 401
+
+    data = request.get_json(silent=True) or {}
+    nick = (data.get('nick') or '').strip()
+    email = (data.get('email') or '').strip()
+    nome = (data.get('nome') or '').strip()
+    sobrenome = (data.get('sobrenome') or '').strip()
+
+    if not all([nick, email, nome, sobrenome]):
+        return jsonify({'success': False, 'message': 'Preencha todos os campos antes de continuar.'}), 400
+
     cart = session.get('cart', {})
     if not cart:
-        return redirect(url_for('loja'))
-        
+        return jsonify({'success': False, 'message': 'Seu carrinho está vazio.'}), 400
+
+    if not sdk:
+        return jsonify({
+            'success': False,
+            'message': 'Pagamentos indisponíveis: configure MP_ACCESS_TOKEN no arquivo .env do servidor.',
+        }), 500
+
     cart_items = list(cart.values())
     total = 0.0
     for item in cart_items:
         item['subtotal'] = float(item['price']) * int(item['quantity'])
         total += item['subtotal']
-        
-    if request.method == 'POST':
-        payment_method = request.form.get('payment_method', 'Pix')
-        
-        items_json = json.dumps(cart_items, ensure_ascii=False)
-        database.create_purchase(
-            user_id=session['user_id'],
-            items_json=items_json,
-            total_price=total,
-            payment_method=payment_method,
-            status="Aprovado"
-        )
-        
-        session['cart'] = {}
-        session.modified = True
-        session['last_checkout_user'] = session.get('username')
-        
-        return redirect(url_for('checkout_success'))
-        
-    return render_template('checkout.html', cart=cart_items, total=total)
+
+    # Aplica o desconto do código de apoiador (se houver) proporcionalmente ao preço de cada item
+    coupon = session.get('coupon')
+    discount = coupon['discount'] if coupon else 0.0
+    fator = round(1 - discount, 4)
+
+    # Cria o pedido como PENDENTE. Só vira "Aprovado" quando o Mercado Pago confirmar de verdade.
+    purchase_id = database.create_purchase(
+        user_id=session['user_id'],
+        items_json=json.dumps(cart_items, ensure_ascii=False),
+        total_price=round(total * fator, 2),
+        payment_method='mercadopago',
+        status='pending',
+        buyer_email=email,
+    )
+
+    preference_data = {
+        'items': [
+            {
+                'title': item['name'] + (f' ({coupon["code"]})' if coupon else ''),
+                'quantity': int(item['quantity']),
+                'unit_price': round(float(item['price']) * fator, 2),
+                'currency_id': 'BRL',
+            }
+            for item in cart_items
+        ],
+        'payer': {'name': nome, 'surname': sobrenome, 'email': email},
+        'back_urls': {
+            'success': url_for('checkout_success', _external=True),
+            'failure': url_for('checkout_failure', _external=True),
+            'pending': url_for('checkout_pending', _external=True),
+        },
+        'auto_return': 'approved',
+        'external_reference': str(purchase_id),
+        'notification_url': url_for('mp_webhook', _external=True),
+        'metadata': {'nick': nick, 'purchase_id': purchase_id},
+    }
+
+    try:
+        pref_response = sdk.preference().create(preference_data)
+        preference = pref_response.get('response', {}) or {}
+    except Exception as e:
+        print(f'Erro ao criar preferência no Mercado Pago: {e}')
+        return jsonify({'success': False, 'message': 'Erro ao comunicar com o Mercado Pago.'}), 500
+
+    if pref_response.get('status') not in (200, 201) or 'id' not in preference:
+        print(f'Resposta inesperada do Mercado Pago: {pref_response}')
+        return jsonify({
+            'success': False,
+            'message': 'Não foi possível iniciar o pagamento. Verifique se o Access Token configurado é válido.',
+        }), 500
+
+    database.set_purchase_preference(purchase_id, preference.get('id'))
+
+    # O carrinho virou um pedido pendente; esvazia para o usuário poder montar um novo
+    session['cart'] = {}
+    session.pop('coupon', None)
+    session.modified = True
+
+    return jsonify({
+        'success': True,
+        'preference_id': preference.get('id'),
+        'init_point': preference.get('init_point') or preference.get('sandbox_init_point'),
+    })
+
 
 @app.route('/checkout/success')
 def checkout_success():
-    username = session.get('last_checkout_user') or session.get('username', 'Jogador')
+    payment_id = request.args.get('payment_id') or request.args.get('collection_id')
+    external_reference = request.args.get('external_reference')
+    purchase = database.get_purchase_by_id(external_reference) if external_reference else None
+
+    if purchase and sdk and payment_id:
+        try:
+            payment_info = sdk.payment().get(payment_id).get('response', {})
+            real_status = payment_info.get('status', 'pending')
+            database.update_purchase_status(purchase['id'], real_status, payment_id)
+        except Exception as e:
+            print(f'Erro ao consultar pagamento no Mercado Pago: {e}')
+
+    username = session.get('username', 'Jogador')
     return render_template('checkout_success.html', username=username)
+
+
+@app.route('/checkout/pending')
+def checkout_pending():
+    return (
+        '<h1>Pagamento em análise</h1>'
+        '<p>Assim que o Mercado Pago confirmar, seu pedido será liberado automaticamente.</p>'
+        '<a href="/">Voltar para o início</a>'
+    )
+
+
+@app.route('/checkout/failure')
+def checkout_failure():
+    external_reference = request.args.get('external_reference')
+    if external_reference:
+        purchase = database.get_purchase_by_id(external_reference)
+        if purchase:
+            database.update_purchase_status(purchase['id'], 'rejected')
+    return (
+        '<h1>Pagamento não concluído</h1>'
+        '<p>Seu pagamento foi cancelado ou recusado. Nenhum valor foi cobrado.</p>'
+        '<a href="/carrinho">Voltar ao carrinho</a>'
+    )
+
+
+@app.route('/webhook/mercadopago', methods=['POST'])
+def mp_webhook():
+    """Notificação assíncrona do Mercado Pago - fonte de verdade sobre o pagamento."""
+    topic = request.args.get('type') or request.args.get('topic')
+    data_id = request.args.get('data.id') or request.args.get('id')
+
+    if sdk and topic == 'payment' and data_id:
+        try:
+            payment_info = sdk.payment().get(data_id).get('response', {})
+            purchase_id = payment_info.get('external_reference')
+            status = payment_info.get('status')
+            if purchase_id:
+                database.update_purchase_status(purchase_id, status, data_id)
+        except Exception as e:
+            print(f'Erro ao processar webhook do Mercado Pago: {e}')
+
+    return jsonify({'received': True}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

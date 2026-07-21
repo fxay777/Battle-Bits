@@ -524,11 +524,13 @@
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link active">Fórum</a></li>
                 <li><a href="/staffs" class="nav-link">Staffs</a></li>               
-                <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 <li>
-                    <a href="#" class="btn-login" id="loginBtn" onclick="toggleAuth()">
-                        <i class="fas fa-user"></i> Cadastre-se
-                    </a>
+                    {% if session.get('username') %}
+                        <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
+                    {% else %}
+                        <a href="/login" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a>
+                    {% endif %}
                 </li>
             </ul>
             <div class="hamburger" id="hamburger">

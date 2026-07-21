@@ -485,6 +485,11 @@
         </div>
         <div class="nav-links">
             <a href="/vips"><i class="fas fa-arrow-left"></i> Voltar à aba vips</a>
+            {% if session.get('username') %}
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
+            {% else %}
+                <a href="/login"><i class="fas fa-user"></i> Cadastre-se</a>
+            {% endif %}
         </div>
     </nav>
 

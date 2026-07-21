@@ -6,8 +6,8 @@
 }
 
 :root {
-    --red: #DC143C;
-    --red-dark: #B22222;
+    --red: #0d6efd;
+    --red-dark: #0b5ed7;
     --black: #000000;
     --white: #FFFFFF;
     --gray: #333333;
@@ -380,7 +380,7 @@ body {
 
 .vip-price {
     font-size: 4rem;
-    background: linear-gradient(45deg, var(--red), #ff4444);
+    background: linear-gradient(45deg, var(--red), #4fc3f7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -394,7 +394,7 @@ body {
     position: absolute;
     top: -15px;
     right: -25px;
-    background: radial-gradient(circle, var(--red), #B22222);
+    background: radial-gradient(circle, var(--red), #0b5ed7);
     color: var(--white);
     padding: 0.4rem 1rem;
     border-radius: 25px;
@@ -752,7 +752,7 @@ body {
 }
 
 .staff-role {
-    background: linear-gradient(90deg, var(--red), #ff4444);
+    background: linear-gradient(90deg, var(--red), #4fc3f7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

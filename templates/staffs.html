@@ -360,89 +360,92 @@
             line-height: 1.3;
         }
 
-        /* Cores por cargo (com base nas cores da print) */
-        .role-ceo .category-header {
-            border-bottom-color: #e63946;
+        /* Cores por cargo (com base na 3ª print: vermelho = administração, ciano = developer, roxo = moderação) */
+        .role-ceo .category-header,
+        .role-diretor .category-header,
+        .role-gerente .category-header,
+        .role-admin .category-header {
+            background: linear-gradient(90deg, #b91c2b, #8b0000);
+            border-bottom-color: #b91c2b;
         }
-        .role-ceo .category-title i {
-            color: #e63946;
+        .role-ceo .category-title,
+        .role-ceo .category-title i,
+        .role-diretor .category-title,
+        .role-diretor .category-title i,
+        .role-gerente .category-title,
+        .role-gerente .category-title i,
+        .role-admin .category-title,
+        .role-admin .category-title i {
+            color: #fff;
         }
-        .role-ceo .staff-card {
-            border-top: 2px solid rgba(230, 57, 70, 0.3);
+        .role-ceo .category-count,
+        .role-diretor .category-count,
+        .role-gerente .category-count,
+        .role-admin .category-count {
+            color: rgba(255, 255, 255, 0.8);
         }
-        .role-ceo .staff-card:hover {
-            border-top-color: #e63946;
-            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.2);
+        .role-ceo .staff-card,
+        .role-diretor .staff-card,
+        .role-gerente .staff-card,
+        .role-admin .staff-card {
+            border-top: 2px solid rgba(185, 28, 43, 0.35);
+        }
+        .role-ceo .staff-card:hover,
+        .role-diretor .staff-card:hover,
+        .role-gerente .staff-card:hover,
+        .role-admin .staff-card:hover {
+            border-top-color: #b91c2b;
+            box-shadow: 0 8px 30px rgba(185, 28, 43, 0.25);
+        }
+        .role-ceo .staff-name,
+        .role-diretor .staff-name,
+        .role-gerente .staff-name,
+        .role-admin .staff-name {
+            color: #ef4444;
         }
 
         .role-developer .category-header {
-            border-bottom-color: #f77f00;
+            background: linear-gradient(90deg, #0d9488, #0891b2);
+            border-bottom-color: #0d9488;
         }
+        .role-developer .category-title,
         .role-developer .category-title i {
-            color: #f77f00;
+            color: #fff;
+        }
+        .role-developer .category-count {
+            color: rgba(255, 255, 255, 0.8);
         }
         .role-developer .staff-card {
-            border-top: 2px solid rgba(247, 127, 0, 0.3);
+            border-top: 2px solid rgba(13, 148, 136, 0.35);
         }
         .role-developer .staff-card:hover {
-            border-top-color: #f77f00;
-            box-shadow: 0 8px 30px rgba(247, 127, 0, 0.2);
+            border-top-color: #0d9488;
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.25);
         }
-
-        .role-diretor .category-header {
-            border-bottom-color: #9c27b0;
-        }
-        .role-diretor .category-title i {
-            color: #9c27b0;
-        }
-        .role-diretor .staff-card {
-            border-top: 2px solid rgba(156, 39, 176, 0.3);
-        }
-        .role-diretor .staff-card:hover {
-            border-top-color: #9c27b0;
-            box-shadow: 0 8px 30px rgba(156, 39, 176, 0.2);
-        }
-
-        .role-gerente .category-header {
-            border-bottom-color: #0d6efd;
-        }
-        .role-gerente .category-title i {
-            color: #0d6efd;
-        }
-        .role-gerente .staff-card {
-            border-top: 2px solid rgba(13, 110, 253, 0.3);
-        }
-        .role-gerente .staff-card:hover {
-            border-top-color: #0d6efd;
-            box-shadow: 0 8px 30px rgba(13, 110, 253, 0.2);
-        }
-
-        .role-admin .category-header {
-            border-bottom-color: #2ecc71;
-        }
-        .role-admin .category-title i {
-            color: #2ecc71;
-        }
-        .role-admin .staff-card {
-            border-top: 2px solid rgba(46, 204, 113, 0.3);
-        }
-        .role-admin .staff-card:hover {
-            border-top-color: #2ecc71;
-            box-shadow: 0 8px 30px rgba(46, 204, 113, 0.2);
+        .role-developer .staff-name {
+            color: #2dd4bf;
         }
 
         .role-moderator .category-header {
-            border-bottom-color: #3498db;
+            background: linear-gradient(90deg, #a21caf, #7e22ce);
+            border-bottom-color: #a21caf;
         }
+        .role-moderator .category-title,
         .role-moderator .category-title i {
-            color: #3498db;
+            color: #fff;
+        }
+        .role-moderator .category-count {
+            color: rgba(255, 255, 255, 0.8);
         }
         .role-moderator .staff-card {
-            border-top: 2px solid rgba(52, 152, 219, 0.3);
+            border-top: 2px solid rgba(162, 28, 175, 0.35);
         }
         .role-moderator .staff-card:hover {
-            border-top-color: #3498db;
-            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.2);
+            border-top-color: #a21caf;
+            box-shadow: 0 8px 30px rgba(162, 28, 175, 0.25);
+        }
+        .role-moderator .staff-name {
+            color: #d946ef;
         }
 
         /* ============ FOOTER ============ */
@@ -576,8 +579,8 @@
                 <li><a href="/staffs" class="nav-link active">Staffs</a></li>
                 <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
                 <li>
-                    {% if is_admin %}
-                        <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Logout {{ username }}</a>
+                    {% if session.get('username') %}
+                        <a href="/logout" class="btn-login"><i class="fas fa-sign-out-alt"></i> Sair ({{ session.get('username') }})</a>
                     {% else %}
                         <a href="/cadastro" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a>
                     {% endif %}
