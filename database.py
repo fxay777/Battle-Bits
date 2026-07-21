@@ -55,6 +55,17 @@ def init_db():
         )
     ''')
     
+    # Colunas extras de perfil/segurança (adicionadas depois - protegido para bancos já existentes)
+    for coluna, tipo in [
+        ('avatar', 'TEXT'),
+        ('totp_secret', 'TEXT'),
+        ('totp_enabled', 'BOOLEAN DEFAULT 0'),
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE users ADD COLUMN {coluna} {tipo}')
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
+
     # Colunas extras de pagamento (adicionadas depois - protegido para bancos já existentes)
     for coluna, tipo in [
         ('preference_id', 'TEXT'),
@@ -126,6 +137,38 @@ def get_user_by_id(user_id):
     user = cursor.fetchone()
     conn.close()
     return user
+
+def update_user_avatar(user_id, avatar_path):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET avatar = ? WHERE id = ?", (avatar_path, user_id))
+    conn.commit()
+    conn.close()
+
+
+def set_totp_secret(user_id, secret):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET totp_secret = ?, totp_enabled = 0 WHERE id = ?", (secret, user_id))
+    conn.commit()
+    conn.close()
+
+
+def enable_totp(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET totp_enabled = 1 WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+
+def disable_totp(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET totp_enabled = 0, totp_secret = NULL WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
 
 def create_purchase(user_id, items_json, total_price, payment_method, status="pending", preference_id=None, buyer_email=None):
     conn = get_db_connection()

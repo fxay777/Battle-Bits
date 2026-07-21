@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --primary: #0d6efd;
+            --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7;
+            --text: #e0e0e0;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            padding: 0 20px;
+        }
+        .navbar.scrolled { background: rgba(10, 10, 10, 0.95); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .nav-logo i { background: none; -webkit-text-fill-color: var(--primary); font-size: 1.6rem; }
+        .nav-menu { display: flex; list-style: none; gap: 6px; align-items: center; }
+        .nav-link {
+            color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            padding: 10px 16px; border-radius: 50px; transition: var(--transition); border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--accent); }
+        .btn-login {
+            background: var(--primary) !important; color: #fff !important; font-weight: 600;
+            padding: 10px 22px !important; box-shadow: 0 0 20px var(--primary-glow); transition: var(--transition);
+            border-radius: 50px; text-decoration: none; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-login:hover { background: #0b5ed7 !important; box-shadow: 0 0 35px rgba(13, 110, 253, 0.7); }
+        .nav-avatar {
+            width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent);
+        }
+        .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
+        .hamburger .bar { width: 26px; height: 3px; background: #fff; border-radius: 3px; transition: var(--transition); }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+                background: rgba(10, 10, 10, 0.96); backdrop-filter: blur(20px);
+                flex-direction: column; padding: 90px 30px 30px; gap: 8px; transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active { right: 0; }
+            .hamburger { display: flex; }
+            .nav-link { font-size: 1rem; padding: 14px 18px; width: 100%; border-radius: 10px; }
+        }
+
+        /* ============ CONTEÚDO ============ */
+        .perfil-section { padding: 140px 20px 60px; flex: 1; display: flex; justify-content: center; }
+        .perfil-container { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 24px; }
+
+        .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 28px; }
+        .card-title {
+            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1rem; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .card-title i { color: var(--primary); }
+
+        /* Avatar */
+        .avatar-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .avatar-preview {
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            border: 3px solid var(--primary); box-shadow: 0 0 25px var(--primary-glow); background: var(--bg-dark);
+        }
+        .avatar-placeholder {
+            width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(13, 110, 253, 0.1); border: 3px solid var(--border-light); font-size: 2.5rem; color: var(--text-muted);
+        }
+        .avatar-form { display: flex; flex-direction: column; gap: 10px; }
+        .avatar-form input[type="file"] {
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        .btn-submit {
+            background: var(--primary); color: #fff; border: none; padding: 10px 22px; border-radius: 50px;
+            font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+            box-shadow: 0 0 15px var(--primary-glow); display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+        }
+        .btn-submit:hover { background: #0b5ed7; box-shadow: 0 0 25px rgba(13, 110, 253, 0.6); }
+        .hint { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Info da conta */
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--text-muted); }
+        .info-value { color: #fff; font-weight: 600; }
+
+        /* 2FA */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 50px;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-on { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .status-off { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .twofa-desc { font-size: 0.85rem; color: var(--text-muted); margin: 12px 0 18px; }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--border-light); color: #fff; padding: 10px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--accent); }
+        .btn-danger {
+            background: transparent; border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; padding: 10px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+        }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .desativar-form { display: none; margin-top: 16px; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .desativar-form.show { display: flex; }
+        .desativar-form input {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+            color: #fff; font-size: 0.85rem; outline: none;
+        }
+        .desativar-form input:focus { border-color: #ef4444; }
+
+        .alert {
+            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #ff8a8a;
+            padding: 14px 18px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
+        }
+
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px;
+            background: rgba(13, 110, 253, 0.08); width: fit-content; transition: var(--transition);
+        }
+        .btn-back:hover { background: rgba(13, 110, 253, 0.15); color: #fff; }
+
+        .main-footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 24px 20px; margin-top: auto; }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; gap: 10px;
+        }
+        .footer-bottom i { color: var(--primary); opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Battle Bits</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
+                <li>
+                    <a href="/perfil" class="nav-link active">
+                        {% if avatar_url %}<img src="{{ avatar_url }}" class="nav-avatar">{% else %}<i class="fas fa-user-circle"></i>{% endif %}
+                        {{ user.username }}
+                    </a>
+                </li>
+                <li><a href="/logout" class="nav-link" title="Sair da conta" style="padding:10px 14px;"><i class="fas fa-sign-out-alt"></i></a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="perfil-section">
+        <div class="perfil-container">
+            <a class="btn-back" href="/"><i class="fas fa-arrow-left"></i> Voltar para o início</a>
+
+            {% if erro %}
+            <div class="alert"><i class="fas fa-exclamation-circle"></i> {{ erro }}</div>
+            {% endif %}
+
+            <!-- FOTO DE PERFIL -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-image"></i> Foto de Perfil</div>
+                <div class="avatar-row">
+                    {% if avatar_url %}
+                        <img src="{{ avatar_url }}" class="avatar-preview">
+                    {% else %}
+                        <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+                    {% endif %}
+                    <form class="avatar-form" method="POST" action="/perfil/foto" enctype="multipart/form-data">
+                        <input type="file" name="foto" accept=".png,.jpg,.jpeg,.gif,.webp" required>
+                        <button type="submit" class="btn-submit"><i class="fas fa-upload"></i> Enviar foto</button>
+                        <span class="hint">PNG, JPG, GIF ou WEBP · até 4 MB · será recortada em quadrado</span>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DADOS DA CONTA -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-id-card"></i> Dados da Conta</div>
+                <div class="info-row"><span class="info-label">Usuário</span><span class="info-value">{{ user.username }}</span></div>
+                <div class="info-row"><span class="info-label">E-mail</span><span class="info-value">{{ user.email }}</span></div>
+                <div class="info-row"><span class="info-label">Conta criada em</span><span class="info-value">{{ user.created_at[:10] }}</span></div>
+            </div>
+
+            <!-- 2FA -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-shield-alt"></i> Autenticação em Duas Etapas (2FA)</div>
+
+                {% if user.totp_enabled %}
+                    <span class="status-badge status-on"><i class="fas fa-check-circle"></i> Ativado</span>
+                    <p class="twofa-desc">Sua conta está protegida. A cada login, será pedido um código do seu aplicativo autenticador.</p>
+                    <button type="button" class="btn-danger" onclick="document.getElementById('desativarForm').classList.toggle('show')">
+                        <i class="fas fa-times-circle"></i> Desativar 2FA
+                    </button>
+                    <form id="desativarForm" class="desativar-form" method="POST" action="/perfil/2fa/desativar">
+                        <input type="password" name="senha" placeholder="Confirme sua senha" required>
+                        <button type="submit" class="btn-danger">Confirmar desativação</button>
+                    </form>
+                {% else %}
+                    <span class="status-badge status-off"><i class="fas fa-times-circle"></i> Desativado</span>
+                    <p class="twofa-desc">Adicione uma camada extra de segurança usando um app autenticador (Google Authenticator, Authy, etc).</p>
+                    <a href="/perfil/2fa/ativar" class="btn-outline"><i class="fas fa-qrcode"></i> Ativar 2FA</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits © 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    {% include 'botpress_widget.html' %}
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+    </script>
+</body>
+</html>

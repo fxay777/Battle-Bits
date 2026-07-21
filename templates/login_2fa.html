@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação em Duas Etapas - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a; --bg-card: #111111; --primary: #0d6efd; --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7; --text: #e0e0e0; --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06); --border-light: rgba(255, 255, 255, 0.1); --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 20%, rgba(13, 110, 253, 0.05) 0%, transparent 60%);
+            color: var(--text); font-family: 'Poppins', sans-serif; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; width: 100%; max-width: 400px; text-align: center; }
+        .icon-wrap {
+            width: 64px; height: 64px; border-radius: 50%; background: rgba(13, 110, 253, 0.12); color: var(--primary);
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 18px;
+        }
+        .box h1 { font-family: 'Montserrat', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 26px; }
+        .subtitle b { color: var(--accent); }
+        .input-group input {
+            width: 100%; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+            color: #fff; font-size: 1.4rem; letter-spacing: 8px; text-align: center; outline: none; font-family: monospace;
+            margin-bottom: 20px;
+        }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .btn-submit {
+            width: 100%; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px var(--primary-glow);
+        }
+        .btn-submit:hover { background: #0b5ed7; box-shadow: 0 0 25px rgba(13, 110, 253, 0.6); }
+        .erro-message {
+            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #ff8a8a;
+            padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-top: 18px; }
+        .btn-back:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="icon-wrap"><i class="fas fa-shield-alt"></i></div>
+        <h1>Verificação em Duas Etapas</h1>
+        <p class="subtitle">Olá, <b>{{ username }}</b>! Digite o código de 6 dígitos do seu app autenticador.</p>
+
+        {% if erro %}
+        <div class="erro-message"><i class="fas fa-exclamation-circle"></i> {{ erro }}</div>
+        {% endif %}
+
+        <form method="POST" action="/login/2fa">
+            <div class="input-group">
+                <input type="text" name="codigo" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" required autofocus>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-unlock"></i> Verificar e Entrar</button>
+        </form>
+
+        <a href="/login" class="btn-back"><i class="fas fa-arrow-left"></i> Cancelar login</a>
+    </div>
+</body>
+</html>

@@ -401,13 +401,12 @@
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
                 <li><a href="/staffs" class="nav-link">Staffs</a></li>              <
                 <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
-                <li>
-                    {% if is_admin %}
-                        <a href="/logout" class="nav-link btn-login"><i class="fas fa-sign-out-alt"></i> Logout {{ username }}</a>
-                    {% else %}
-                        <a href="/cadastro" class="nav-link btn-login" style="background: #0d6efd;">Cadastre-se</a>
-                    {% endif %}
-                </li>
+                {% if session.get('username') %}
+                <li><a href="/perfil" class="nav-link" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a></li>
+                <li><a href="/logout" class="nav-link" title="Sair da conta" style="padding:10px 14px;"><i class="fas fa-sign-out-alt"></i></a></li>
+                {% else %}
+                <li><a href="/cadastro" class="nav-link btn-login" style="background: #0d6efd;">Cadastre-se</a></li>
+                {% endif %}
             </ul>
             <div class="hamburger" id="hamburger">
                 <span class="bar"></span>

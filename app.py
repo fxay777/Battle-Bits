@@ -1,10 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import json
 import os
+import io
+import base64
+import secrets
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import mercadopago
+import pyotp
+import qrcode
+from PIL import Image
 import database
 
 load_dotenv()  # lê o arquivo .env (NUNCA comitado) para pegar as chaves do Mercado Pago
@@ -15,18 +22,37 @@ app.secret_key = 'battle-bits-super-secret-key-2026-change-in-prod'
 # Initialize database
 database.init_db()
 
+# ============ UPLOAD DE AVATAR ============
+AVATAR_FOLDER = os.path.join(app.root_path, 'static', 'uploads', 'avatars')
+os.makedirs(AVATAR_FOLDER, exist_ok=True)
+ALLOWED_AVATAR_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_AVATAR_SIZE = 4 * 1024 * 1024  # 4 MB
+
 # ============ MERCADO PAGO ============
 # Access Token e Public Key vêm de variáveis de ambiente (.env), nunca hardcoded no código.
 MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', '')
 MP_PUBLIC_KEY = os.environ.get('MP_PUBLIC_KEY', '')
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN) if MP_ACCESS_TOKEN else None
 
+
+def get_avatar_url(user):
+    """Retorna a URL do avatar do usuário ou None se ele não tiver um."""
+    if user and user['avatar']:
+        return url_for('static', filename=f"uploads/avatars/{user['avatar']}")
+    return None
+
 @app.context_processor
 def inject_user_context():
+    avatar_url = None
+    user_id = session.get('user_id')
+    if user_id:
+        user = database.get_user_by_id(user_id)
+        avatar_url = get_avatar_url(user)
     return {
         'username': session.get('username', 'Visitante'),
         'is_admin': session.get('admin', False),
-        'user_id': session.get('user_id', None)
+        'user_id': user_id,
+        'avatar_url': avatar_url,
     }
 
 @app.route('/')
@@ -264,6 +290,12 @@ def login():
         else:
             user = database.get_user_by_username(usuario)
             if user and check_password_hash(user['password_hash'], senha):
+                if user['totp_enabled']:
+                    # Login ainda não está completo: falta o código do app autenticador
+                    session['pending_2fa_user_id'] = user['id']
+                    session['pending_2fa_checkout'] = (info_msg == 'checkout')
+                    return redirect(url_for('login_2fa'))
+
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['admin'] = bool(user['is_admin'])
@@ -277,10 +309,180 @@ def login():
                 
     return render_template('login.html', erro=erro or (info_msg == 'checkout' and 'Faça login ou cadastre-se para finalizar a sua compra.'))
 
+
+@app.route('/login/2fa', methods=['GET', 'POST'])
+def login_2fa():
+    pending_user_id = session.get('pending_2fa_user_id')
+    if not pending_user_id:
+        return redirect(url_for('login'))
+
+    user = database.get_user_by_id(pending_user_id)
+    if not user or not user['totp_enabled']:
+        session.pop('pending_2fa_user_id', None)
+        return redirect(url_for('login'))
+
+    erro = None
+    if request.method == 'POST':
+        codigo = request.form.get('codigo', '').strip().replace(' ', '')
+        totp = pyotp.TOTP(user['totp_secret'])
+        if totp.verify(codigo, valid_window=1):
+            session.pop('pending_2fa_user_id', None)
+            checkout_pendente = session.pop('pending_2fa_checkout', False)
+
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session['admin'] = bool(user['is_admin'])
+
+            if checkout_pendente and session.get('cart'):
+                return redirect(url_for('carrinho'))
+            return redirect(url_for('home'))
+        else:
+            erro = 'Código inválido ou expirado. Tente novamente.'
+
+    return render_template('login_2fa.html', erro=erro, username=user['username'])
+
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('home'))
+
+
+def login_required_redirect():
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+    return None
+
+
+@app.route('/perfil')
+def perfil():
+    redirect_resp = login_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    user = database.get_user_by_id(session['user_id'])
+    erro = request.args.get('erro')
+    return render_template('perfil.html', user=user, avatar_url=get_avatar_url(user), erro=erro)
+
+
+@app.route('/perfil/foto', methods=['POST'])
+def perfil_foto():
+    redirect_resp = login_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    arquivo = request.files.get('foto')
+    if not arquivo or arquivo.filename == '':
+        return redirect(url_for('perfil', erro='Selecione uma imagem.'))
+
+    ext = arquivo.filename.rsplit('.', 1)[-1].lower() if '.' in arquivo.filename else ''
+    if ext not in ALLOWED_AVATAR_EXT:
+        return redirect(url_for('perfil', erro='Formato inválido. Use PNG, JPG, GIF ou WEBP.'))
+
+    arquivo.seek(0, os.SEEK_END)
+    tamanho = arquivo.tell()
+    arquivo.seek(0)
+    if tamanho > MAX_AVATAR_SIZE:
+        return redirect(url_for('perfil', erro='Imagem muito grande (máximo 4 MB).'))
+
+    user_id = session['user_id']
+
+    try:
+        img = Image.open(arquivo)
+        img = img.convert('RGBA') if ext == 'png' or ext == 'gif' else img.convert('RGB')
+
+        # Recorta em quadrado (centralizado) e redimensiona para um avatar de 256x256
+        w, h = img.size
+        lado = min(w, h)
+        left = (w - lado) // 2
+        top = (h - lado) // 2
+        img = img.crop((left, top, left + lado, top + lado))
+        img = img.resize((256, 256), Image.LANCZOS)
+
+        nome_arquivo = f"user_{user_id}_{secrets.token_hex(4)}.png"
+        caminho = os.path.join(AVATAR_FOLDER, nome_arquivo)
+        img.save(caminho, format='PNG')
+    except Exception as e:
+        print(f'Erro ao processar avatar: {e}')
+        return redirect(url_for('perfil', erro='Não foi possível processar essa imagem.'))
+
+    # Remove o avatar antigo (se houver) para não acumular arquivos
+    user = database.get_user_by_id(user_id)
+    if user['avatar']:
+        antigo = os.path.join(AVATAR_FOLDER, user['avatar'])
+        if os.path.exists(antigo):
+            try:
+                os.remove(antigo)
+            except OSError:
+                pass
+
+    database.update_user_avatar(user_id, nome_arquivo)
+    return redirect(url_for('perfil'))
+
+
+@app.route('/perfil/2fa/ativar', methods=['GET', 'POST'])
+def perfil_2fa_ativar():
+    redirect_resp = login_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    user = database.get_user_by_id(session['user_id'])
+    if user['totp_enabled']:
+        return redirect(url_for('perfil'))
+
+    erro = None
+
+    if request.method == 'POST':
+        codigo = request.form.get('codigo', '').strip().replace(' ', '')
+        secret = session.get('setup_2fa_secret')
+        if not secret:
+            return redirect(url_for('perfil_2fa_ativar'))
+
+        totp = pyotp.TOTP(secret)
+        if totp.verify(codigo, valid_window=1):
+            database.set_totp_secret(user['id'], secret)
+            database.enable_totp(user['id'])
+            session.pop('setup_2fa_secret', None)
+            return redirect(url_for('perfil'))
+        else:
+            erro = 'Código incorreto. Confira o app autenticador e tente de novo.'
+
+    # Gera (ou reaproveita) um segredo pendente de confirmação
+    secret = session.get('setup_2fa_secret')
+    if not secret:
+        secret = pyotp.random_base32()
+        session['setup_2fa_secret'] = secret
+
+    totp = pyotp.TOTP(secret)
+    otpauth_url = totp.provisioning_uri(name=user['username'], issuer_name='Battle Bits')
+
+    qr_img = qrcode.make(otpauth_url)
+    buf = io.BytesIO()
+    qr_img.save(buf, format='PNG')
+    qr_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
+
+    return render_template(
+        'perfil_2fa_ativar.html',
+        secret=secret,
+        qr_base64=qr_base64,
+        erro=erro,
+    )
+
+
+@app.route('/perfil/2fa/desativar', methods=['POST'])
+def perfil_2fa_desativar():
+    redirect_resp = login_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    user = database.get_user_by_id(session['user_id'])
+    senha = request.form.get('senha', '')
+
+    if not check_password_hash(user['password_hash'], senha):
+        return redirect(url_for('perfil', erro='Senha incorreta. 2FA não foi desativado.'))
+
+    database.disable_totp(user['id'])
+    return redirect(url_for('perfil'))
 
 # ============================================================
 #   APIs DO CARRINHO (CORRIGIDAS – SEM DEPENDÊNCIA DO shop.json)

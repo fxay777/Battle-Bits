@@ -10,3 +10,5 @@ venv/
 # Dados locais gerados em runtime
 database.db
 posts.json
+static/uploads/avatars/*.png
+!static/uploads/avatars/.gitkeep
