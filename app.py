@@ -155,6 +155,26 @@ def forum():
     return render_template('forum.html', categories=FORUM_CATEGORIES, counts=counts, is_admin=is_admin, username=username)
 
 
+STAFF_CARGOS = {'Moderator', 'Admin', 'Gerente', 'Diretor', 'Developer', 'Ceo'}
+
+# Categorias onde só quem tem cargo de staff pode RESPONDER (comentar).
+# Qualquer jogador logado ainda pode abrir um tópico novo (ex: denunciar alguém).
+CATEGORIAS_RESPOSTA_STAFF = {'report'}
+
+
+def usuario_eh_staff():
+    """True se o usuário logado tem um cargo de staff (definido no /admin/cargos) ou é a conta dona."""
+    if session.get('admin'):
+        return True
+    user_id = session.get('user_id')
+    if not user_id:
+        return False
+    user = database.get_user_by_id(user_id)
+    if not user:
+        return False
+    return (user['cargo'] or 'Membro') in STAFF_CARGOS
+
+
 @app.route('/forum/<categoria>', methods=['GET', 'POST'])
 def forum_categoria(categoria):
     if categoria not in FORUM_CATEGORIES:
@@ -165,6 +185,11 @@ def forum_categoria(categoria):
     username = session.get('username', 'Visitante')
     logged_in = username != 'Visitante'
     pode_postar = logged_in and (is_admin or not cat_info['admin_only_post'])
+
+    if categoria in CATEGORIAS_RESPOSTA_STAFF:
+        pode_comentar = logged_in and usuario_eh_staff()
+    else:
+        pode_comentar = logged_in
 
     if request.method == 'POST':
         if not pode_postar:
@@ -181,7 +206,7 @@ def forum_categoria(categoria):
                 'title': titulo,
                 'content': conteudo,
                 'created_by': username,
-                'is_staff': is_admin,
+                'is_staff': usuario_eh_staff(),
                 'timestamp': datetime.now().isoformat(),
                 'comments': [],
             })
@@ -196,6 +221,7 @@ def forum_categoria(categoria):
         categoria=categoria,
         cat_info=cat_info,
         pode_postar=pode_postar,
+        pode_comentar=pode_comentar,
         logged_in=logged_in,
         is_admin=is_admin,
         username=username,
@@ -209,27 +235,24 @@ def add_comment(post_id):
     if username == 'Visitante':
         return redirect(url_for('login'))
 
-    comment_text = request.form.get('comment_text', '').strip()
     posts = load_posts()
-    categoria = 'ideias'
+    post_atual = next((p for p in posts if p['id'] == post_id), None)
+    categoria = post_atual.get('category', 'ideias') if post_atual else 'ideias'
 
-    if comment_text:
-        for post in posts:
-            if post['id'] == post_id:
-                categoria = post.get('category', 'ideias')
-                post['comments'].append({
-                    'author': username,
-                    'is_staff': session.get('admin', False),
-                    'text': comment_text,
-                    'timestamp': datetime.now().isoformat(),
-                })
-                break
+    # Em categorias restritas (ex: Report/Denúncias), só quem tem cargo de staff pode responder
+    if categoria in CATEGORIAS_RESPOSTA_STAFF and not usuario_eh_staff():
+        return redirect(url_for('forum_categoria', categoria=categoria))
+
+    comment_text = request.form.get('comment_text', '').strip()
+
+    if comment_text and post_atual:
+        post_atual['comments'].append({
+            'author': username,
+            'is_staff': usuario_eh_staff(),
+            'text': comment_text,
+            'timestamp': datetime.now().isoformat(),
+        })
         save_posts(posts)
-    else:
-        for post in posts:
-            if post['id'] == post_id:
-                categoria = post.get('category', 'ideias')
-                break
 
     return redirect(url_for('forum_categoria', categoria=categoria))
 
@@ -356,13 +379,73 @@ def login_required_redirect():
 
 @app.route('/perfil')
 def perfil():
+    if not session.get('username'):
+        return redirect(url_for('login'))
+    return redirect(url_for('perfil_publico', username=session['username']))
+
+
+@app.route('/perfil/configuracoes')
+def perfil_configuracoes():
     redirect_resp = login_required_redirect()
     if redirect_resp:
         return redirect_resp
 
     user = database.get_user_by_id(session['user_id'])
     erro = request.args.get('erro')
-    return render_template('perfil.html', user=user, avatar_url=get_avatar_url(user), erro=erro)
+    compras = database.get_user_purchases(user['id'])
+    compras_aprovadas = sum(1 for c in compras if c['status'] == 'approved')
+    return render_template(
+        'perfil_configuracoes.html',
+        user=user,
+        avatar_url=get_avatar_url(user),
+        erro=erro,
+        compras_aprovadas=compras_aprovadas,
+    )
+
+
+@app.route('/perfil/<username>')
+def perfil_publico(username):
+    user = database.get_user_by_username(username)
+    if not user:
+        return redirect(url_for('home'))
+
+    meu_user_id = session.get('user_id')
+    eh_meu_perfil = meu_user_id == user['id']
+
+    posts = load_posts()
+    meus_posts = [p for p in posts if p.get('created_by', '').lower() == user['username'].lower()]
+    meus_posts.sort(key=lambda p: p.get('timestamp', ''), reverse=True)
+
+    seguindo = bool(meu_user_id) and not eh_meu_perfil and database.is_following(meu_user_id, user['id'])
+
+    return render_template(
+        'perfil_publico.html',
+        perfil_user=user,
+        avatar_url_perfil=get_avatar_url(user),
+        eh_meu_perfil=eh_meu_perfil,
+        seguindo=seguindo,
+        meus_posts=meus_posts,
+        categorias=FORUM_CATEGORIES,
+        seguidores=database.get_followers(user['id']),
+        seguindo_lista=database.get_following(user['id']),
+    )
+
+
+@app.route('/perfil/<username>/seguir', methods=['POST'])
+def perfil_seguir(username):
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+
+    alvo = database.get_user_by_username(username)
+    if not alvo or alvo['id'] == session['user_id']:
+        return redirect(url_for('perfil_publico', username=username))
+
+    if database.is_following(session['user_id'], alvo['id']):
+        database.unfollow_user(session['user_id'], alvo['id'])
+    else:
+        database.follow_user(session['user_id'], alvo['id'])
+
+    return redirect(url_for('perfil_publico', username=username))
 
 
 @app.route('/perfil/foto', methods=['POST'])
@@ -373,17 +456,17 @@ def perfil_foto():
 
     arquivo = request.files.get('foto')
     if not arquivo or arquivo.filename == '':
-        return redirect(url_for('perfil', erro='Selecione uma imagem.'))
+        return redirect(url_for('perfil_configuracoes', erro='Selecione uma imagem.'))
 
     ext = arquivo.filename.rsplit('.', 1)[-1].lower() if '.' in arquivo.filename else ''
     if ext not in ALLOWED_AVATAR_EXT:
-        return redirect(url_for('perfil', erro='Formato inválido. Use PNG, JPG, GIF ou WEBP.'))
+        return redirect(url_for('perfil_configuracoes', erro='Formato inválido. Use PNG, JPG, GIF ou WEBP.'))
 
     arquivo.seek(0, os.SEEK_END)
     tamanho = arquivo.tell()
     arquivo.seek(0)
     if tamanho > MAX_AVATAR_SIZE:
-        return redirect(url_for('perfil', erro='Imagem muito grande (máximo 4 MB).'))
+        return redirect(url_for('perfil_configuracoes', erro='Imagem muito grande (máximo 4 MB).'))
 
     user_id = session['user_id']
 
@@ -404,7 +487,7 @@ def perfil_foto():
         img.save(caminho, format='PNG')
     except Exception as e:
         print(f'Erro ao processar avatar: {e}')
-        return redirect(url_for('perfil', erro='Não foi possível processar essa imagem.'))
+        return redirect(url_for('perfil_configuracoes', erro='Não foi possível processar essa imagem.'))
 
     # Remove o avatar antigo (se houver) para não acumular arquivos
     user = database.get_user_by_id(user_id)
@@ -417,7 +500,7 @@ def perfil_foto():
                 pass
 
     database.update_user_avatar(user_id, nome_arquivo)
-    return redirect(url_for('perfil'))
+    return redirect(url_for('perfil_configuracoes'))
 
 
 @app.route('/perfil/2fa/ativar', methods=['GET', 'POST'])
@@ -428,7 +511,7 @@ def perfil_2fa_ativar():
 
     user = database.get_user_by_id(session['user_id'])
     if user['totp_enabled']:
-        return redirect(url_for('perfil'))
+        return redirect(url_for('perfil_configuracoes'))
 
     erro = None
 
@@ -443,7 +526,7 @@ def perfil_2fa_ativar():
             database.set_totp_secret(user['id'], secret)
             database.enable_totp(user['id'])
             session.pop('setup_2fa_secret', None)
-            return redirect(url_for('perfil'))
+            return redirect(url_for('perfil_configuracoes'))
         else:
             erro = 'Código incorreto. Confira o app autenticador e tente de novo.'
 
@@ -479,10 +562,47 @@ def perfil_2fa_desativar():
     senha = request.form.get('senha', '')
 
     if not check_password_hash(user['password_hash'], senha):
-        return redirect(url_for('perfil', erro='Senha incorreta. 2FA não foi desativado.'))
+        return redirect(url_for('perfil_configuracoes', erro='Senha incorreta. 2FA não foi desativado.'))
 
     database.disable_totp(user['id'])
-    return redirect(url_for('perfil'))
+    return redirect(url_for('perfil_configuracoes'))
+
+
+# ============================================================
+#   PAINEL DE CARGOS - ACESSO EXCLUSIVO DO DONO (conta "admin")
+# ============================================================
+CARGOS_DISPONIVEIS = ['Membro', 'VIP', 'Moderator', 'Admin', 'Gerente', 'Diretor', 'Developer', 'Ceo']
+
+
+def owner_required_redirect():
+    """Só a conta 'admin' (o dono do site) pode passar daqui."""
+    if session.get('username') != 'admin' or not session.get('admin'):
+        return redirect(url_for('home'))
+    return None
+
+
+@app.route('/admin/cargos')
+def admin_cargos():
+    redirect_resp = owner_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    usuarios = database.get_all_users()
+    return render_template('admin_cargos.html', usuarios=usuarios, cargos_disponiveis=CARGOS_DISPONIVEIS)
+
+
+@app.route('/admin/cargos/<int:user_id>', methods=['POST'])
+def admin_cargos_set(user_id):
+    redirect_resp = owner_required_redirect()
+    if redirect_resp:
+        return redirect_resp
+
+    novo_cargo = request.form.get('cargo', 'Membro')
+    if novo_cargo not in CARGOS_DISPONIVEIS:
+        novo_cargo = 'Membro'
+
+    database.set_user_cargo(user_id, novo_cargo)
+    return redirect(url_for('admin_cargos'))
 
 # ============================================================
 #   APIs DO CARRINHO (CORRIGIDAS – SEM DEPENDÊNCIA DO shop.json)

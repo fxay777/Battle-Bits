@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ perfil_user.username }} - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a; --bg-card: #111111; --primary: #0d6efd; --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7; --success: #22c55e; --danger: #ef4444;
+            --text: #e0e0e0; --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06); --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px; --radius: 18px; --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(13, 110, 253, 0.06) 0%, transparent 55%);
+            color: var(--text); font-family: 'Poppins', sans-serif; line-height: 1.6;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border); transition: var(--transition); padding: 0 20px;
+        }
+        .navbar.scrolled { background: rgba(10, 10, 10, 0.95); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .nav-logo i { background: none; -webkit-text-fill-color: var(--primary); font-size: 1.6rem; }
+        .nav-menu { display: flex; list-style: none; gap: 6px; align-items: center; }
+        .nav-link {
+            color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            padding: 10px 16px; border-radius: 50px; transition: var(--transition); display: flex; align-items: center; gap: 6px;
+        }
+        .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--accent); }
+        .nav-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
+        .hamburger .bar { width: 26px; height: 3px; background: #fff; border-radius: 3px; transition: var(--transition); }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+                background: rgba(10, 10, 10, 0.96); backdrop-filter: blur(20px);
+                flex-direction: column; align-items: flex-start; padding: 90px 30px 30px; gap: 8px; transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active { right: 0; }
+            .hamburger { display: flex; }
+            .nav-link { font-size: 1rem; padding: 14px 18px; width: 100%; border-radius: 10px; }
+        }
+
+        /* ============ CONTEÚDO ============ */
+        .perfil-section { padding: 100px 20px 60px; flex: 1; display: flex; justify-content: center; }
+        .perfil-container { width: 100%; max-width: 980px; display: flex; flex-direction: column; gap: 20px; }
+
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px;
+            background: rgba(13, 110, 253, 0.08); width: fit-content; transition: var(--transition);
+        }
+        .btn-back:hover { background: rgba(13, 110, 253, 0.15); color: #fff; }
+
+        /* ============ CARTÃO DO PERFIL (banner + avatar) ============ */
+        .profile-card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .profile-banner {
+            height: 150px; position: relative;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(79, 195, 247, 0.35), transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(13, 110, 253, 0.45), transparent 45%),
+                linear-gradient(135deg, #0d1b33 0%, #071018 100%);
+        }
+        .profile-banner::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 26px 26px;
+        }
+        .profile-header {
+            display: flex; align-items: flex-end; gap: 20px; padding: 0 28px 20px; margin-top: -54px; position: relative;
+            flex-wrap: wrap;
+        }
+        .avatar-ring {
+            width: 108px; height: 108px; border-radius: 50%; padding: 4px; flex-shrink: 0;
+            background: {{ 'linear-gradient(135deg, #22c55e, #0d6efd)' if perfil_user.totp_enabled else 'var(--primary)' }};
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+        .avatar-img, .avatar-placeholder {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 4px solid var(--bg-card); background: #1a1a1a;
+            display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: var(--text-muted);
+        }
+        .profile-id { flex: 1; padding-bottom: 6px; min-width: 200px; }
+        .profile-name {
+            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.6rem; color: #fff;
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+        .cargo-badge {
+            font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 4px 12px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .profile-handle { color: var(--text-muted); font-size: 0.88rem; margin-top: 4px; }
+        .profile-actions { padding-bottom: 8px; }
+        .btn-follow {
+            border: none; padding: 11px 26px; border-radius: 50px; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-follow.seguir { background: var(--primary); color: #fff; box-shadow: 0 0 18px var(--primary-glow); }
+        .btn-follow.seguir:hover { background: #0b5ed7; }
+        .btn-follow.deixar { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); }
+        .btn-follow.deixar:hover { border-color: var(--danger); color: var(--danger); }
+        .btn-edit-perfil {
+            background: transparent; border: 1px solid var(--primary); color: var(--accent); text-decoration: none;
+            padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; display: inline-flex;
+            align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .btn-edit-perfil:hover { background: rgba(13, 110, 253, 0.12); color: #fff; }
+
+        /* ============ LAYOUT: SIDEBAR + CONTEÚDO ============ */
+        .profile-body { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+        @media (max-width: 720px) { .profile-body { grid-template-columns: 1fr; } }
+
+        .sidebar { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; height: fit-content; }
+        .sidebar-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; border-radius: 10px;
+            cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.88rem; transition: var(--transition);
+        }
+        .sidebar-item:hover { background: rgba(255, 255, 255, 0.04); color: #fff; }
+        .sidebar-item.active { background: rgba(13, 110, 253, 0.15); color: var(--accent); }
+        .sidebar-item .count { color: var(--text-muted); font-weight: 700; font-size: 0.82rem; }
+        .sidebar-item.active .count { color: var(--accent); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; }
+        .card-title {
+            font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.9rem; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #fff; margin-bottom: 16px;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+        .stat-box {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 16px 18px;
+        }
+        .stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+        .stat-value { font-size: 1.3rem; font-weight: 800; color: #fff; }
+
+        .posts-list { display: flex; flex-direction: column; gap: 12px; }
+        .post-item {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 16px 18px; text-decoration: none; color: inherit; display: block; transition: var(--transition);
+        }
+        .post-item:hover { border-color: var(--border-light); background: rgba(255, 255, 255, 0.04); }
+        .post-item-cat { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+        .post-item-title { font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .post-item-snippet { font-size: 0.82rem; color: var(--text-muted); }
+        .empty-msg { text-align: center; color: var(--text-muted); padding: 30px; font-size: 0.9rem; }
+
+        .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+        .user-chip {
+            display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: inherit;
+            padding: 16px 10px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border); transition: var(--transition);
+        }
+        .user-chip:hover { border-color: var(--border-light); background: rgba(255, 255, 255, 0.04); }
+        .user-chip img, .user-chip .chip-placeholder {
+            width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: #1a1a1a;
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 1.4rem;
+        }
+        .user-chip span { font-size: 0.82rem; font-weight: 600; color: #fff; text-align: center; word-break: break-word; }
+
+        .main-footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 24px 20px; margin-top: auto; }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; gap: 10px;
+        }
+        .footer-bottom i { color: var(--primary); opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Battle Bits</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
+                {% if session.get('username') %}
+                <li>
+                    <a href="/perfil/{{ session.get('username') }}" class="nav-link {{ 'active' if eh_meu_perfil else '' }}">
+                        {% if session.get('username') == perfil_user.username and avatar_url_perfil %}<img src="{{ avatar_url_perfil }}" class="nav-avatar">{% else %}<i class="fas fa-user-circle"></i>{% endif %}
+                        {{ session.get('username') }}
+                    </a>
+                </li>
+                <li><a href="/logout" class="nav-link" title="Sair da conta"><i class="fas fa-sign-out-alt"></i></a></li>
+                {% else %}
+                <li><a href="/login" class="nav-link btn-login">Entrar</a></li>
+                {% endif %}
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="perfil-section">
+        <div class="perfil-container">
+            <a class="btn-back" href="/"><i class="fas fa-arrow-left"></i> Voltar para o início</a>
+
+            <!-- CARTÃO DO PERFIL -->
+            <div class="profile-card">
+                <div class="profile-banner"></div>
+                <div class="profile-header">
+                    <div class="avatar-ring">
+                        {% if avatar_url_perfil %}
+                            <img src="{{ avatar_url_perfil }}" class="avatar-img">
+                        {% else %}
+                            <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-id">
+                        <div class="profile-name">
+                            {{ perfil_user.username }}
+                            {% set cargo = perfil_user.cargo or 'Membro' %}
+                            <span class="cargo-badge" style="
+                                {% if cargo == 'Ceo' %}background:rgba(239,68,68,0.15);color:#ef4444;
+                                {% elif cargo == 'Developer' %}background:rgba(45,212,191,0.15);color:#2dd4bf;
+                                {% elif cargo in ['Diretor','Gerente','Admin'] %}background:rgba(239,68,68,0.15);color:#ef4444;
+                                {% elif cargo == 'Moderator' %}background:rgba(217,70,239,0.15);color:#d946ef;
+                                {% else %}background:rgba(255,255,255,0.08);color:var(--text-muted);{% endif %}
+                            "><i class="fas fa-shield-alt"></i> {{ cargo }}</span>
+                        </div>
+                        <div class="profile-handle">@{{ perfil_user.username }} · membro desde {{ perfil_user.created_at[:10] }}</div>
+                    </div>
+                    <div class="profile-actions">
+                        {% if not session.get('username') %}
+                            <a href="/login" class="btn-follow seguir"><i class="fas fa-user-plus"></i> Seguir</a>
+                        {% elif eh_meu_perfil %}
+                            <a href="/perfil/configuracoes" class="btn-edit-perfil"><i class="fas fa-gear"></i> Editar perfil</a>
+                        {% else %}
+                            <form method="POST" action="/perfil/{{ perfil_user.username }}/seguir">
+                                {% if seguindo %}
+                                    <button type="submit" class="btn-follow deixar"><i class="fas fa-user-check"></i> Seguindo</button>
+                                {% else %}
+                                    <button type="submit" class="btn-follow seguir"><i class="fas fa-user-plus"></i> Seguir</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR + CONTEÚDO -->
+            <div class="profile-body">
+                <div class="sidebar">
+                    <div class="sidebar-item active" data-tab="sobre" onclick="mudarAba('sobre', this)">
+                        <span>Sobre</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="posts" onclick="mudarAba('posts', this)">
+                        <span>Tópicos</span> <span class="count">{{ meus_posts|length }}</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="seguidores" onclick="mudarAba('seguidores', this)">
+                        <span>Seguidores</span> <span class="count">{{ seguidores|length }}</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="seguindo" onclick="mudarAba('seguindo', this)">
+                        <span>Seguindo</span> <span class="count">{{ seguindo_lista|length }}</span>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    <!-- SOBRE -->
+                    <div class="tab-panel active" id="tab-sobre">
+                        <div class="card">
+                            <div class="card-title">Estatísticas</div>
+                            <div class="stats-grid">
+                                <div class="stat-box"><div class="stat-label">Cargo</div><div class="stat-value">{{ perfil_user.cargo or 'Membro' }}</div></div>
+                                <div class="stat-box"><div class="stat-label">Membro desde</div><div class="stat-value">{{ perfil_user.created_at[:10] }}</div></div>
+                                <div class="stat-box"><div class="stat-label">Tópicos no fórum</div><div class="stat-value">{{ meus_posts|length }}</div></div>
+                                <div class="stat-box"><div class="stat-label">Seguidores</div><div class="stat-value">{{ seguidores|length }}</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TÓPICOS -->
+                    <div class="tab-panel" id="tab-posts">
+                        <div class="card">
+                            <div class="card-title">Tópicos criados no fórum</div>
+                            <div class="posts-list">
+                                {% if meus_posts|length == 0 %}
+                                    <div class="empty-msg">Ainda não criou nenhum tópico.</div>
+                                {% else %}
+                                    {% for post in meus_posts %}
+                                    <a class="post-item" href="/forum/{{ post.category }}">
+                                        <div class="post-item-cat">{{ categorias.get(post.category, {}).get('title', post.category) }}</div>
+                                        <div class="post-item-title">{{ post.title }}</div>
+                                        <div class="post-item-snippet">{{ post.content[:120] }}{{ '...' if post.content|length > 120 else '' }}</div>
+                                    </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEGUIDORES -->
+                    <div class="tab-panel" id="tab-seguidores">
+                        <div class="card">
+                            <div class="card-title">Seguidores</div>
+                            <div class="users-grid">
+                                {% if seguidores|length == 0 %}
+                                    <div class="empty-msg">Ainda não tem seguidores.</div>
+                                {% else %}
+                                    {% for u in seguidores %}
+                                    <a class="user-chip" href="/perfil/{{ u.username }}">
+                                        {% if u.avatar %}<img src="/static/uploads/avatars/{{ u.avatar }}">{% else %}<div class="chip-placeholder"><i class="fas fa-user"></i></div>{% endif %}
+                                        <span>{{ u.username }}</span>
+                                    </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEGUINDO -->
+                    <div class="tab-panel" id="tab-seguindo">
+                        <div class="card">
+                            <div class="card-title">Seguindo</div>
+                            <div class="users-grid">
+                                {% if seguindo_lista|length == 0 %}
+                                    <div class="empty-msg">Ainda não segue ninguém.</div>
+                                {% else %}
+                                    {% for u in seguindo_lista %}
+                                    <a class="user-chip" href="/perfil/{{ u.username }}">
+                                        {% if u.avatar %}<img src="/static/uploads/avatars/{{ u.avatar }}">{% else %}<div class="chip-placeholder"><i class="fas fa-user"></i></div>{% endif %}
+                                        <span>{{ u.username }}</span>
+                                    </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits © 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    {% include 'botpress_widget.html' %}
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        function mudarAba(nome, el) {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('tab-' + nome).classList.add('active');
+        }
+    </script>
+</body>
+</html>

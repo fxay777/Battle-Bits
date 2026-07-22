@@ -129,6 +129,12 @@
             padding: 10px 14px; color: #fff; font-size: 0.85rem; font-family: inherit; outline: none;
         }
         .comment-form input:focus { border-color: var(--primary); box-shadow: 0 0 12px var(--primary-glow); }
+        .staff-only-notice {
+            margin-top: 14px; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03);
+            border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .staff-only-notice i { color: #ef4444; }
+        .staff-only-notice a { color: var(--accent); }
         .btn-comment {
             background: var(--primary); color: #fff; border: none; padding: 0 18px; border-radius: 8px;
             font-weight: 700; cursor: pointer; transition: var(--transition);
@@ -177,7 +183,7 @@
                 <li><a href="/staffs" class="nav-link">Staffs</a></li>
                 <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i> </a></li>
                 {% if session.get('username') %}
-                <li><a href="/perfil" class="nav-link" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a></li>
+                <li><a href="/perfil/{{ session.get('username') }}" class="nav-link" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a></li>
                 <li><a href="/logout" class="nav-link" title="Sair da conta" style="padding:10px 14px;"><i class="fas fa-sign-out-alt"></i></a></li>
                 {% else %}
                 <li><a href="/login" class="btn-login"><i class="fas fa-user"></i> Cadastre-se</a></li>
@@ -206,7 +212,7 @@
                         {% for post in posts %}
                         <div class="post-card">
                             <div class="post-meta">
-                                <span>Por: <span class="post-author {{ 'staff' if post.is_staff else '' }}">{{ post.created_by }}</span>{% if post.is_staff %} <i class="fas fa-shield-alt" title="Staff" style="color:#ef4444;"></i>{% endif %}</span>
+                                <span>Por: <a href="/perfil/{{ post.created_by }}" class="post-author {{ 'staff' if post.is_staff else '' }}" style="text-decoration:none;">{{ post.created_by }}</a>{% if post.is_staff %} <i class="fas fa-shield-alt" title="Staff" style="color:#ef4444;"></i>{% endif %}</span>
                                 <span>{{ post.timestamp[:16].replace('T', ' às ') }}</span>
                             </div>
                             <div class="post-title">{{ post.title }}</div>
@@ -219,7 +225,7 @@
                                     {% for c in post.comments %}
                                     <div class="comment-item">
                                         <div class="comment-meta">
-                                            <span class="comment-author {{ 'staff' if c.is_staff else '' }}">{{ c.author }}</span>
+                                            <a href="/perfil/{{ c.author }}" class="comment-author {{ 'staff' if c.is_staff else '' }}" style="text-decoration:none;">{{ c.author }}</a>
                                             <span>{{ c.timestamp[:16].replace('T', ' às ') }}</span>
                                         </div>
                                         <div>{{ c.text }}</div>
@@ -227,11 +233,15 @@
                                     {% endfor %}
                                 {% endif %}
 
-                                {% if logged_in %}
+                                {% if pode_comentar %}
                                 <form class="comment-form" method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
                                     <input type="text" name="comment_text" placeholder="Escreva um comentário..." required maxlength="500">
                                     <button type="submit" class="btn-comment"><i class="fas fa-paper-plane"></i></button>
                                 </form>
+                                {% elif logged_in and categoria in ['report'] %}
+                                <div class="staff-only-notice"><i class="fas fa-shield-alt"></i> Somente a Staff pode responder denúncias.</div>
+                                {% elif not logged_in %}
+                                <div class="staff-only-notice"><i class="fas fa-lock"></i> <a href="/login">Entre</a> para responder.</div>
                                 {% endif %}
                             </div>
                         </div>

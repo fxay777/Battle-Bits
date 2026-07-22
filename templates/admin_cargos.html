@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Cargos - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a; --bg-card: #111111; --primary: #0d6efd; --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7; --text: #e0e0e0; --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06); --border-light: rgba(255, 255, 255, 0.1); --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(13, 110, 253, 0.05) 0%, transparent 55%);
+            color: var(--text); font-family: 'Poppins', sans-serif; min-height: 100vh; padding: 50px 20px;
+        }
+        .wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px;
+            background: rgba(13, 110, 253, 0.08); width: fit-content;
+        }
+        .btn-back:hover { background: rgba(13, 110, 253, 0.15); color: #fff; }
+        .header { display: flex; align-items: center; gap: 12px; }
+        .header i { color: var(--primary); font-size: 1.4rem; }
+        .header h1 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; color: #fff; }
+        .header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+        .exclusive-tag {
+            display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.12); color: #ef4444;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 5px 14px; border-radius: 50px; width: fit-content;
+        }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left; padding: 14px 20px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border);
+        }
+        td { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        .user-cell { display: flex; align-items: center; gap: 10px; }
+        .user-cell img, .user-cell .ph {
+            width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #1a1a1a;
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0;
+        }
+        .user-name { color: #fff; font-weight: 600; }
+        .user-name a { color: inherit; text-decoration: none; }
+        .user-name a:hover { color: var(--accent); }
+        .badge-admin { font-size: 0.65rem; background: rgba(239,68,68,0.15); color: #ef4444; padding: 2px 8px; border-radius: 50px; margin-left: 8px; }
+
+        select {
+            background: var(--bg-dark); border: 1px solid var(--border-light); color: #fff; padding: 8px 12px;
+            border-radius: 8px; font-size: 0.85rem; font-family: inherit; outline: none;
+        }
+        select:focus { border-color: var(--primary); }
+        .btn-save {
+            background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 8px;
+            font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s; margin-left: 8px;
+        }
+        .btn-save:hover { background: #0b5ed7; }
+        form.cargo-form { display: flex; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="/" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar para o início</a>
+
+        <div class="header">
+            <i class="fas fa-user-shield"></i>
+            <div>
+                <h1>Painel de Cargos</h1>
+                <p>Defina o cargo/badge que aparece no perfil público de cada jogador</p>
+            </div>
+        </div>
+        <span class="exclusive-tag"><i class="fas fa-lock"></i> Acesso exclusivo do dono</span>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>E-mail</th>
+                        <th>Cargo atual</th>
+                        <th>Alterar cargo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                {% if u.avatar %}<img src="/static/uploads/avatars/{{ u.avatar }}">{% else %}<div class="ph"><i class="fas fa-user"></i></div>{% endif %}
+                                <span class="user-name"><a href="/perfil/{{ u.username }}">{{ u.username }}</a>{% if u.username == 'admin' %}<span class="badge-admin">DONO</span>{% endif %}</span>
+                            </div>
+                        </td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.cargo or 'Membro' }}</td>
+                        <td>
+                            <form class="cargo-form" method="POST" action="/admin/cargos/{{ u.id }}">
+                                <select name="cargo">
+                                    {% for c in cargos_disponiveis %}
+                                    <option value="{{ c }}" {{ 'selected' if (u.cargo or 'Membro') == c else '' }}>{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-save">Salvar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

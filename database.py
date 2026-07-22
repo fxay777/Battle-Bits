@@ -55,11 +55,25 @@ def init_db():
         )
     ''')
     
+    # Tabela de quem segue quem
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS follows (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            follower_id INTEGER NOT NULL,
+            following_id INTEGER NOT NULL,
+            created_at TEXT NOT NULL,
+            UNIQUE(follower_id, following_id),
+            FOREIGN KEY(follower_id) REFERENCES users(id),
+            FOREIGN KEY(following_id) REFERENCES users(id)
+        )
+    ''')
+
     # Colunas extras de perfil/segurança (adicionadas depois - protegido para bancos já existentes)
     for coluna, tipo in [
         ('avatar', 'TEXT'),
         ('totp_secret', 'TEXT'),
         ('totp_enabled', 'BOOLEAN DEFAULT 0'),
+        ('cargo', "TEXT DEFAULT 'Membro'"),
     ]:
         try:
             cursor.execute(f'ALTER TABLE users ADD COLUMN {coluna} {tipo}')
@@ -168,6 +182,110 @@ def disable_totp(user_id):
     cursor.execute("UPDATE users SET totp_enabled = 0, totp_secret = NULL WHERE id = ?", (user_id,))
     conn.commit()
     conn.close()
+
+
+def set_user_cargo(user_id, cargo):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET cargo = ? WHERE id = ?", (cargo, user_id))
+    conn.commit()
+    conn.close()
+
+
+def get_all_users():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users ORDER BY id ASC")
+    users = cursor.fetchall()
+    conn.close()
+    return users
+
+
+def follow_user(follower_id, following_id):
+    if follower_id == following_id:
+        return False
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO follows (follower_id, following_id, created_at) VALUES (?, ?, ?)",
+            (follower_id, following_id, datetime.now().isoformat())
+        )
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False  # já segue
+    finally:
+        conn.close()
+
+
+def unfollow_user(follower_id, following_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM follows WHERE follower_id = ? AND following_id = ?",
+        (follower_id, following_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def is_following(follower_id, following_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?",
+        (follower_id, following_id)
+    )
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
+
+
+def count_followers(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) as c FROM follows WHERE following_id = ?", (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result['c'] if result else 0
+
+
+def count_following(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) as c FROM follows WHERE follower_id = ?", (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result['c'] if result else 0
+
+
+def get_followers(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT users.* FROM follows
+        JOIN users ON users.id = follows.follower_id
+        WHERE follows.following_id = ?
+        ORDER BY follows.id DESC
+    ''', (user_id,))
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_following(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT users.* FROM follows
+        JOIN users ON users.id = follows.following_id
+        WHERE follows.follower_id = ?
+        ORDER BY follows.id DESC
+    ''', (user_id,))
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 
 def create_purchase(user_id, items_json, total_price, payment_method, status="pending", preference_id=None, buyer_email=None):

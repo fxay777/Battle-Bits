@@ -661,7 +661,7 @@
                 <span class="cart-badge" id="cartBadge">{{ cart|length }}</span>
             </a>
             {% if session.get('username') %}
-                <a href="/perfil" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a>
+                <a href="/perfil/{{ session.get('username') }}" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a>
                 <a href="/logout" title="Sair da conta"><i class="fas fa-sign-out-alt"></i></a>
             {% else %}
                 <a href="/login" class="btn-login">Entrar</a>
