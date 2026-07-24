@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Experiência - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a; --bg-card: #111111; --primary: #0d6efd; --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7; --text: #e0e0e0; --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06); --border-light: rgba(255, 255, 255, 0.1); --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(13, 110, 253, 0.05) 0%, transparent 55%);
+            color: var(--text); font-family: 'Poppins', sans-serif; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 34px; width: 100%; max-width: 480px; }
+        .box h1 {
+            font-family: 'Montserrat', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .box h1 i { color: var(--primary); }
+        .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
+
+        .tipo-toggle { display: flex; gap: 10px; margin-bottom: 22px; }
+        .tipo-opcao {
+            flex: 1; text-align: center; padding: 14px 10px; border-radius: 10px; cursor: pointer;
+            border: 1px solid var(--border-light); color: var(--text-muted); font-weight: 700; font-size: 0.85rem;
+            transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+        .tipo-opcao i { font-size: 1.1rem; }
+        .tipo-opcao.ativo { border-color: var(--primary); background: rgba(13, 110, 253, 0.1); color: var(--accent); }
+        .tipo-opcao input { display: none; }
+
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+        .input-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .input-group input[type="text"], .input-group input[type="url"], .input-group textarea, .input-group input[type="file"] {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; padding: 13px 14px;
+            color: #fff; font-size: 0.9rem; font-family: 'Poppins', sans-serif; outline: none; transition: border-color 0.2s;
+        }
+        .input-group input:focus, .input-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .input-group textarea { resize: vertical; min-height: 90px; }
+        .hint { font-size: 0.72rem; color: var(--text-muted); }
+
+        .campo-video, .campo-story { display: none; }
+        .campo-video.show, .campo-story.show { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+        .btn-submit {
+            width: 100%; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px var(--primary-glow);
+        }
+        .btn-submit:hover { background: #0b5ed7; box-shadow: 0 0 25px rgba(13, 110, 253, 0.6); }
+        .erro-message {
+            background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #ff8a8a;
+            padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-top: 16px; }
+        .btn-back:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1><i class="fas fa-clapperboard"></i> Nova Experiência</h1>
+        <p class="subtitle">Mostre pra galera como é o Battle Bits</p>
+
+        {% if erro %}
+        <div class="erro-message"><i class="fas fa-exclamation-circle"></i> {{ erro }}</div>
+        {% endif %}
+
+        <form method="POST" action="/experiencias/nova" enctype="multipart/form-data" id="expForm">
+            <div class="tipo-toggle">
+                <label class="tipo-opcao ativo" id="opcaoStory">
+                    <input type="radio" name="tipo" value="story" checked onchange="mudarTipo('story')">
+                    <i class="fas fa-image"></i> Story (foto)
+                </label>
+                <label class="tipo-opcao" id="opcaoVideo">
+                    <input type="radio" name="tipo" value="video" onchange="mudarTipo('video')">
+                    <i class="fas fa-video"></i> Vídeo (link)
+                </label>
+            </div>
+
+            <div class="input-group">
+                <label>Título</label>
+                <input type="text" name="titulo" placeholder="Ex: Meu primeiro dia no servidor!" maxlength="120" required>
+            </div>
+
+            <div class="campo-story show" id="campoStory">
+                <label>Foto</label>
+                <input type="file" name="imagem" accept=".png,.jpg,.jpeg,.gif,.webp">
+                <span class="hint">PNG, JPG, GIF ou WEBP · até 8 MB</span>
+            </div>
+
+            <div class="campo-video" id="campoVideo">
+                <label>Link do vídeo</label>
+                <input type="url" name="video_url" placeholder="https://youtube.com/watch?v=...">
+                <span class="hint">Link do YouTube (embutido automaticamente), TikTok, ou qualquer outro</span>
+            </div>
+
+            <div class="input-group">
+                <label>Descrição (opcional)</label>
+                <textarea name="texto" placeholder="Conte um pouco sobre essa experiência..." maxlength="1000"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Publicar</button>
+        </form>
+
+        <a href="/experiencias" class="btn-back"><i class="fas fa-arrow-left"></i> Cancelar e voltar</a>
+    </div>
+
+    {% include 'botpress_widget.html' %}
+
+    <script>
+        function mudarTipo(tipo) {
+            document.getElementById('opcaoStory').classList.toggle('ativo', tipo === 'story');
+            document.getElementById('opcaoVideo').classList.toggle('ativo', tipo === 'video');
+            document.getElementById('campoStory').classList.toggle('show', tipo === 'story');
+            document.getElementById('campoVideo').classList.toggle('show', tipo === 'video');
+        }
+    </script>
+</body>
+</html>

@@ -4,11 +4,13 @@ import os
 import io
 import base64
 import secrets
+import re
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import mercadopago
+import requests
 import pyotp
 import qrcode
 from PIL import Image
@@ -28,9 +30,42 @@ os.makedirs(AVATAR_FOLDER, exist_ok=True)
 ALLOWED_AVATAR_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_AVATAR_SIZE = 4 * 1024 * 1024  # 4 MB
 
+# ============ UPLOAD DE FOTOS DE EXPERIÊNCIAS (stories) ============
+EXPERIENCIA_FOLDER = os.path.join(app.root_path, 'static', 'uploads', 'experiencias')
+os.makedirs(EXPERIENCIA_FOLDER, exist_ok=True)
+ALLOWED_EXPERIENCIA_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_EXPERIENCIA_SIZE = 8 * 1024 * 1024  # 8 MB
+
 # ============ MERCADO PAGO ============
 # Access Token e Public Key vêm de variáveis de ambiente (.env), nunca hardcoded no código.
 MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', '')
+
+# ============ DISCORD (webhook das Novidades) ============
+# URL do webhook vem do .env - NUNCA hardcoded no código.
+DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL', '')
+
+
+def enviar_novidade_discord(titulo, conteudo, autor, categoria_url):
+    """Manda a novidade postada no fórum também pro Discord, via webhook.
+    Se o webhook não estiver configurado, simplesmente não faz nada (não quebra o site)."""
+    if not DISCORD_WEBHOOK_URL:
+        return
+
+    payload = {
+        'username': 'Battle Bits',
+        'embeds': [{
+            'title': f'📢 {titulo}',
+            'description': conteudo[:2000],
+            'color': 0x0d6efd,
+            'author': {'name': f'Publicado por {autor}'},
+            'url': categoria_url,
+            'footer': {'text': 'Battle Bits · Novidades'},
+        }],
+    }
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
+    except Exception as e:
+        print(f'Erro ao enviar novidade pro Discord: {e}')
 MP_PUBLIC_KEY = os.environ.get('MP_PUBLIC_KEY', '')
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN) if MP_ACCESS_TOKEN else None
 
@@ -53,6 +88,7 @@ def inject_user_context():
         'is_admin': session.get('admin', False),
         'user_id': user_id,
         'avatar_url': avatar_url,
+        'pode_gerenciar_cargos_flag': pode_gerenciar_cargos(),
     }
 
 @app.route('/')
@@ -135,6 +171,9 @@ def load_posts():
                 for p in posts:
                     p.setdefault('category', 'novidades')
                     p.setdefault('comments', [])
+                    if p.get('category') == 'report':
+                        p.setdefault('status', 'pendente')
+                        p.setdefault('assigned_staff', None)
                 return posts
     except Exception as e:
         print(f'Erro ao ler posts.json: {e}')
@@ -211,6 +250,14 @@ def forum_categoria(categoria):
                 'comments': [],
             })
             save_posts(posts)
+
+            if categoria == 'novidades':
+                enviar_novidade_discord(
+                    titulo=titulo,
+                    conteudo=conteudo,
+                    autor=username,
+                    categoria_url=url_for('forum_categoria', categoria=categoria, _external=True),
+                )
         return redirect(url_for('forum_categoria', categoria=categoria))
 
     posts = [p for p in load_posts() if p.get('category') == categoria]
@@ -243,6 +290,13 @@ def add_comment(post_id):
     if categoria in CATEGORIAS_RESPOSTA_STAFF and not usuario_eh_staff():
         return redirect(url_for('forum_categoria', categoria=categoria))
 
+    # Só UM staff atende cada denúncia: quem comenta primeiro "pega" o caso.
+    # Depois disso, só ele (ou o dono raiz) pode continuar respondendo.
+    if categoria in CATEGORIAS_RESPOSTA_STAFF and post_atual is not None:
+        atendente = post_atual.get('assigned_staff')
+        if atendente and atendente.lower() != username.lower() and not eh_dono_raiz():
+            return redirect(url_for('forum_categoria', categoria=categoria))
+
     comment_text = request.form.get('comment_text', '').strip()
 
     if comment_text and post_atual:
@@ -252,9 +306,70 @@ def add_comment(post_id):
             'text': comment_text,
             'timestamp': datetime.now().isoformat(),
         })
+
+        # Primeira resposta de um staff nessa denúncia = ele "pega" o caso
+        if categoria in CATEGORIAS_RESPOSTA_STAFF and not post_atual.get('assigned_staff') and usuario_eh_staff():
+            post_atual['assigned_staff'] = username
+
         save_posts(posts)
 
     return redirect(url_for('forum_categoria', categoria=categoria))
+
+
+STATUS_REPORT_VALIDOS = {'pendente', 'verificado', 'falso'}
+
+
+@app.route('/forum/report/<int:post_id>/status', methods=['POST'])
+def forum_report_status(post_id):
+    """Só quem tem cargo de staff pode marcar uma denúncia como verídica ou falsa."""
+    if not usuario_eh_staff():
+        return redirect(url_for('forum_categoria', categoria='report'))
+
+    novo_status = request.form.get('status', 'pendente')
+    if novo_status not in STATUS_REPORT_VALIDOS:
+        novo_status = 'pendente'
+
+    posts = load_posts()
+    for post in posts:
+        if post['id'] == post_id and post.get('category') == 'report':
+            post['status'] = novo_status
+            break
+    save_posts(posts)
+
+    return redirect(url_for('forum_categoria', categoria='report'))
+
+
+def calcular_confianca_reports(username):
+    """Calcula a taxa de confiança de denúncias de um jogador:
+    quantas das denúncias que ele abriu foram marcadas como verídicas pela staff."""
+    posts = load_posts()
+    denuncias = [p for p in posts if p.get('category') == 'report' and p.get('created_by', '').lower() == username.lower()]
+
+    total = len(denuncias)
+    verificadas = sum(1 for p in denuncias if p.get('status') == 'verificado')
+    falsas = sum(1 for p in denuncias if p.get('status') == 'falso')
+    julgadas = verificadas + falsas  # denúncias já analisadas (fora as pendentes)
+
+    taxa = round((verificadas / julgadas) * 100) if julgadas > 0 else None
+
+    if taxa is None:
+        selo = 'sem_dados'
+    elif taxa >= 80:
+        selo = 'confiavel'
+    elif taxa >= 50:
+        selo = 'neutro'
+    else:
+        selo = 'baixa_confianca'
+
+    return {
+        'total': total,
+        'verificadas': verificadas,
+        'falsas': falsas,
+        'julgadas': julgadas,
+        'taxa': taxa,
+        'selo': selo,
+    }
+
 
 @app.route('/staffs')
 def staffs():
@@ -417,6 +532,7 @@ def perfil_publico(username):
     meus_posts.sort(key=lambda p: p.get('timestamp', ''), reverse=True)
 
     seguindo = bool(meu_user_id) and not eh_meu_perfil and database.is_following(meu_user_id, user['id'])
+    confianca = calcular_confianca_reports(user['username'])
 
     return render_template(
         'perfil_publico.html',
@@ -428,6 +544,7 @@ def perfil_publico(username):
         categorias=FORUM_CATEGORIES,
         seguidores=database.get_followers(user['id']),
         seguindo_lista=database.get_following(user['id']),
+        confianca=confianca,
     )
 
 
@@ -437,15 +554,157 @@ def perfil_seguir(username):
         return redirect(url_for('login'))
 
     alvo = database.get_user_by_username(username)
+    destino = request.form.get('proximo') or url_for('perfil_publico', username=username)
+
     if not alvo or alvo['id'] == session['user_id']:
-        return redirect(url_for('perfil_publico', username=username))
+        return redirect(destino)
 
     if database.is_following(session['user_id'], alvo['id']):
         database.unfollow_user(session['user_id'], alvo['id'])
     else:
         database.follow_user(session['user_id'], alvo['id'])
 
-    return redirect(url_for('perfil_publico', username=username))
+    return redirect(destino)
+
+
+# ============================================================
+#   EXPERIÊNCIAS - stories e vídeos dos jogadores sobre o servidor
+#   (qualquer um pode ver, mas só quem tem conta pode postar)
+# ============================================================
+def extrair_youtube_id(url):
+    """Extrai o ID de um link do YouTube (várias variações de URL). None se não for YouTube."""
+    if not url:
+        return None
+    padroes = [
+        r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})',
+    ]
+    for p in padroes:
+        m = re.search(p, url)
+        if m:
+            return m.group(1)
+    return None
+
+
+@app.route('/experiencias')
+def experiencias():
+    aba = request.args.get('aba', 'todos')
+    user_id = session.get('user_id')
+
+    if aba == 'seguindo' and user_id:
+        lista = database.get_experiencias_seguindo(user_id)
+    else:
+        aba = 'todos'
+        lista = database.get_all_experiencias()
+
+    totais_likes, curtidas_usuario = database.get_likes_experiencias(user_id)
+
+    seguindo_ids = set()
+    if user_id:
+        seguindo_ids = {u['id'] for u in database.get_following(user_id)}
+
+    itens = []
+    for e in lista:
+        youtube_id = extrair_youtube_id(e['video_url']) if e['tipo'] == 'video' else None
+        itens.append({
+            'exp': e,
+            'youtube_id': youtube_id,
+            'likes': totais_likes.get(e['id'], 0),
+            'curtiu': e['id'] in curtidas_usuario,
+            'ja_segue_autor': e['user_id'] in seguindo_ids,
+            'eh_meu_post': e['user_id'] == user_id,
+        })
+
+    seguindo_lista = database.get_following(user_id) if user_id else []
+
+    return render_template('experiencias.html', itens=itens, aba=aba, seguindo_lista=seguindo_lista)
+
+
+@app.route('/experiencias/<int:exp_id>/curtir', methods=['POST'])
+def experiencias_curtir(exp_id):
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'message': 'Faça login para curtir.'}), 401
+
+    curtiu = database.toggle_like_experiencia(exp_id, session['user_id'])
+    totais, _ = database.get_likes_experiencias()
+    return jsonify({'success': True, 'curtiu': curtiu, 'total': totais.get(exp_id, 0)})
+
+
+@app.route('/experiencias/nova', methods=['GET', 'POST'])
+def experiencias_nova():
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+
+    erro = None
+
+    if request.method == 'POST':
+        tipo = request.form.get('tipo', 'story')
+        titulo = request.form.get('titulo', '').strip()
+        texto = request.form.get('texto', '').strip()
+
+        if not titulo:
+            erro = 'Dê um título pra sua experiência.'
+        elif tipo == 'video':
+            video_url = request.form.get('video_url', '').strip()
+            if not video_url:
+                erro = 'Cole o link do vídeo (YouTube, TikTok, etc).'
+            else:
+                exp_id = database.create_experiencia(
+                    user_id=session['user_id'], tipo='video', titulo=titulo,
+                    texto=texto, video_url=video_url,
+                )
+                return redirect(url_for('experiencias'))
+        else:
+            arquivo = request.files.get('imagem')
+            if not arquivo or arquivo.filename == '':
+                erro = 'Selecione uma imagem pro seu story.'
+            else:
+                ext = arquivo.filename.rsplit('.', 1)[-1].lower() if '.' in arquivo.filename else ''
+                if ext not in ALLOWED_EXPERIENCIA_EXT:
+                    erro = 'Formato inválido. Use PNG, JPG, GIF ou WEBP.'
+                else:
+                    arquivo.seek(0, os.SEEK_END)
+                    tamanho = arquivo.tell()
+                    arquivo.seek(0)
+                    if tamanho > MAX_EXPERIENCIA_SIZE:
+                        erro = 'Imagem muito grande (máximo 8 MB).'
+                    else:
+                        try:
+                            img = Image.open(arquivo)
+                            img = img.convert('RGB')
+                            img.thumbnail((1280, 1280))
+                            nome_arquivo = f"exp_{session['user_id']}_{secrets.token_hex(4)}.jpg"
+                            caminho = os.path.join(EXPERIENCIA_FOLDER, nome_arquivo)
+                            img.save(caminho, format='JPEG', quality=88)
+
+                            database.create_experiencia(
+                                user_id=session['user_id'], tipo='story', titulo=titulo,
+                                texto=texto, imagem=nome_arquivo,
+                            )
+                            return redirect(url_for('experiencias'))
+                        except Exception as e:
+                            print(f'Erro ao processar imagem da experiência: {e}')
+                            erro = 'Não foi possível processar essa imagem.'
+
+    return render_template('experiencias_nova.html', erro=erro)
+
+
+@app.route('/experiencias/<int:exp_id>/excluir', methods=['POST'])
+def experiencias_excluir(exp_id):
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+
+    exp = database.get_experiencia_by_id(exp_id)
+    if exp and (exp['user_id'] == session['user_id'] or eh_dono_raiz()):
+        if exp['imagem']:
+            caminho = os.path.join(EXPERIENCIA_FOLDER, exp['imagem'])
+            if os.path.exists(caminho):
+                try:
+                    os.remove(caminho)
+                except OSError:
+                    pass
+        database.delete_experiencia(exp_id)
+
+    return redirect(url_for('experiencias'))
 
 
 @app.route('/perfil/foto', methods=['POST'])
@@ -569,14 +828,25 @@ def perfil_2fa_desativar():
 
 
 # ============================================================
-#   PAINEL DE CARGOS - ACESSO EXCLUSIVO DO DONO (conta "admin")
+#   PAINEL DE CARGOS - DONO + QUEM RECEBEU PERMISSÃO MÁXIMA
 # ============================================================
 CARGOS_DISPONIVEIS = ['Membro', 'VIP', 'Moderator', 'Admin', 'Gerente', 'Diretor', 'Developer', 'Ceo']
 
 
+def pode_gerenciar_cargos():
+    """A conta 'admin' (dono) sempre pode. Além dela, qualquer conta que já
+    tenha recebido a permissão máxima (pode_gerenciar_cargos = 1) também pode."""
+    if session.get('username') == 'admin' and session.get('admin'):
+        return True
+    user_id = session.get('user_id')
+    if not user_id:
+        return False
+    user = database.get_user_by_id(user_id)
+    return bool(user and user['pode_gerenciar_cargos'])
+
+
 def owner_required_redirect():
-    """Só a conta 'admin' (o dono do site) pode passar daqui."""
-    if session.get('username') != 'admin' or not session.get('admin'):
+    if not pode_gerenciar_cargos():
         return redirect(url_for('home'))
     return None
 
@@ -588,7 +858,12 @@ def admin_cargos():
         return redirect_resp
 
     usuarios = database.get_all_users()
-    return render_template('admin_cargos.html', usuarios=usuarios, cargos_disponiveis=CARGOS_DISPONIVEIS)
+    return render_template(
+        'admin_cargos.html',
+        usuarios=usuarios,
+        cargos_disponiveis=CARGOS_DISPONIVEIS,
+        eh_dono_raiz=eh_dono_raiz(),
+    )
 
 
 @app.route('/admin/cargos/<int:user_id>', methods=['POST'])
@@ -602,6 +877,28 @@ def admin_cargos_set(user_id):
         novo_cargo = 'Membro'
 
     database.set_user_cargo(user_id, novo_cargo)
+    return redirect(url_for('admin_cargos'))
+
+
+def eh_dono_raiz():
+    """Só a conta literal 'admin' - ninguém mais, nem delegados, passa aqui."""
+    return session.get('username') == 'admin' and session.get('admin')
+
+
+@app.route('/admin/cargos/<int:user_id>/permissao', methods=['POST'])
+def admin_cargos_permissao(user_id):
+    # Conceder/revogar a permissão MÁXIMA (quem pode gerenciar cargos) é exclusivo do dono raiz,
+    # mesmo que outras contas já tenham recebido a permissão de gerenciar cargos.
+    if not eh_dono_raiz():
+        return redirect(url_for('admin_cargos') if pode_gerenciar_cargos() else url_for('home'))
+
+    alvo = database.get_user_by_id(user_id)
+    if alvo and alvo['username'] == 'admin':
+        # a conta dona não pode ter a permissão revogada por ninguém
+        return redirect(url_for('admin_cargos'))
+
+    conceder = request.form.get('acao') == 'conceder'
+    database.set_permissao_cargos(user_id, conceder)
     return redirect(url_for('admin_cargos'))
 
 # ============================================================

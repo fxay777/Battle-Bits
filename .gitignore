@@ -12,3 +12,4 @@ database.db
 posts.json
 static/uploads/avatars/*.png
 !static/uploads/avatars/.gitkeep
+static/uploads/experiencias/*.jpg

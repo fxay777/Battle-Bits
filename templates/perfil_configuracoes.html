@@ -231,7 +231,8 @@
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
                 <li><a href="/staffs" class="nav-link">Staffs</a></li>
-                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
+                                <li><a href="/experiencias" class="nav-link">Experiências</a></li>
+<li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
                 <li>
                     <a href="/perfil/configuracoes" class="nav-link active">
                         {% if avatar_url %}<img src="{{ avatar_url }}" class="nav-avatar">{% else %}<i class="fas fa-user-circle"></i>{% endif %}
@@ -318,10 +319,16 @@
                 </div>
             </div>
 
-            {% if session.get('username') == 'admin' %}
+            {% if pode_gerenciar_cargos_flag %}
             <div class="card">
-                <div class="card-title"><i class="fas fa-user-shield"></i> Painel do Dono</div>
-                <p class="twofa-desc">Esse painel só aparece pra sua conta. Defina o cargo/badge de cada jogador.</p>
+                <div class="card-title"><i class="fas fa-user-shield"></i> Painel de Cargos</div>
+                <p class="twofa-desc">
+                    {% if session.get('username') == 'admin' %}
+                        Só aparece pra sua conta (e para quem você autorizar). Defina o cargo/badge de cada jogador.
+                    {% else %}
+                        Você recebeu permissão do dono para gerenciar os cargos dos jogadores.
+                    {% endif %}
+                </p>
                 <a href="/admin/cargos" class="btn-outline"><i class="fas fa-users-gear"></i> Gerenciar Cargos</a>
             </div>
             {% endif %}

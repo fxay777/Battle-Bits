@@ -65,6 +65,23 @@
         }
         .btn-save:hover { background: #0b5ed7; }
         form.cargo-form { display: flex; align-items: center; }
+
+        .perm-badge {
+            font-size: 0.7rem; font-weight: 700; padding: 4px 12px; border-radius: 50px; display: inline-flex;
+            align-items: center; gap: 5px;
+        }
+        .perm-on { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .perm-off { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
+        .btn-perm {
+            border: none; padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 0.78rem;
+            cursor: pointer; transition: 0.2s; margin-left: 8px;
+        }
+        .btn-perm.revogar { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+        .btn-perm.revogar:hover { background: rgba(239, 68, 68, 0.22); }
+        .btn-perm.conceder { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+        .btn-perm.conceder:hover { background: rgba(34, 197, 94, 0.22); }
+        .perm-form { display: flex; align-items: center; }
+        .perm-locked { font-size: 0.78rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -78,7 +95,7 @@
                 <p>Defina o cargo/badge que aparece no perfil público de cada jogador</p>
             </div>
         </div>
-        <span class="exclusive-tag"><i class="fas fa-lock"></i> Acesso exclusivo do dono</span>
+        <span class="exclusive-tag"><i class="fas fa-lock"></i> Acesso exclusivo do dono e de quem ele autorizar</span>
 
         <div class="card">
             <table>
@@ -88,6 +105,7 @@
                         <th>E-mail</th>
                         <th>Cargo atual</th>
                         <th>Alterar cargo</th>
+                        <th>Permissão máxima</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,6 +128,30 @@
                                 </select>
                                 <button type="submit" class="btn-save">Salvar</button>
                             </form>
+                        </td>
+                        <td>
+                            {% if u.username == 'admin' %}
+                                <span class="perm-badge perm-on"><i class="fas fa-crown"></i> Dono raiz</span>
+                            {% elif eh_dono_raiz %}
+                                <form class="perm-form" method="POST" action="/admin/cargos/{{ u.id }}/permissao">
+                                    {% if u.pode_gerenciar_cargos %}
+                                        <span class="perm-badge perm-on"><i class="fas fa-check"></i> Concedida</span>
+                                        <input type="hidden" name="acao" value="revogar">
+                                        <button type="submit" class="btn-perm revogar">Revogar</button>
+                                    {% else %}
+                                        <span class="perm-badge perm-off"><i class="fas fa-minus"></i> Sem acesso</span>
+                                        <input type="hidden" name="acao" value="conceder">
+                                        <button type="submit" class="btn-perm conceder">Conceder</button>
+                                    {% endif %}
+                                </form>
+                            {% else %}
+                                {% if u.pode_gerenciar_cargos %}
+                                    <span class="perm-badge perm-on"><i class="fas fa-check"></i> Concedida</span>
+                                {% else %}
+                                    <span class="perm-badge perm-off"><i class="fas fa-minus"></i> Sem acesso</span>
+                                {% endif %}
+                                <div class="perm-locked">só o dono altera isso</div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

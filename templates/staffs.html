@@ -577,7 +577,8 @@
                 <li><a href="/vips" class="nav-link">VIPs</a></li>
                 <li><a href="/forum" class="nav-link">Fórum</a></li>
                 <li><a href="/staffs" class="nav-link active">Staffs</a></li>
-                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
+                                <li><a href="/experiencias" class="nav-link">Experiências</a></li>
+<li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
                 {% if session.get('username') %}
                 <li><a href="/perfil/{{ session.get('username') }}" class="nav-link" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a></li>
                 <li><a href="/logout" class="nav-link" title="Sair da conta" style="padding:10px 14px;"><i class="fas fa-sign-out-alt"></i></a></li>
@@ -623,26 +624,20 @@
             <div class="staff-category-block role-ceo reveal">
                 <div class="category-header">
                     <span class="category-title"><i class="fas fa-crown"></i> CEO</span>
-                    <span class="category-count"><i class="fas fa-users"></i> 3 membros</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 2 membros</span>
                 </div>
                 <div class="staffs-grid">
                     <div class="staff-card">
                         <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Notch/130.png" alt="CEO">
+                            <img src="https://minotar.net/armor/bust/Twitey/130.png" alt="CEO">
                         </div>
-                        <span class="staff-name">Notch</span>
+                        <span class="staff-name">Twitey</span>
                     </div>
                     <div class="staff-card">
                         <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Steve/130.png" alt="CEO">
+                            <img src="https://minotar.net/armor/bust/FAASTU/130.png" alt="CEO">
                         </div>
-                        <span class="staff-name">Steve</span>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Alex/130.png" alt="CEO">
-                        </div>
-                        <span class="staff-name">Alex</span>
+                        <span class="staff-name">FAASTU</span>
                     </div>
                 </div>
             </div>
@@ -651,20 +646,26 @@
             <div class="staff-category-block role-developer reveal">
                 <div class="category-header">
                     <span class="category-title"><i class="fas fa-code"></i> Developer</span>
-                    <span class="category-count"><i class="fas fa-users"></i> 2 membros</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 3 membros</span>
                 </div>
                 <div class="staffs-grid">
                     <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Jeb_/130.png" alt="Developer">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user" style="font-size:2rem; color:var(--text-muted);"></i>
                         </div>
-                        <span class="staff-name">Jeb_</span>
+                        <span class="staff-name">Sxmuel</span>
+                    </div>
+                    <div class="staff-card">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user" style="font-size:2rem; color:var(--text-muted);"></i>
+                        </div>
+                        <span class="staff-name">Lugami</span>
                     </div>
                     <div class="staff-card">
                         <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Dinnerbone/130.png" alt="Developer">
+                            <img src="https://minotar.net/armor/bust/aojp/130.png" alt="Developer">
                         </div>
-                        <span class="staff-name">Dinnerbone</span>
+                        <span class="staff-name">aojp</span>
                     </div>
                 </div>
             </div>
@@ -689,14 +690,14 @@
             <div class="staff-category-block role-gerente reveal">
                 <div class="category-header">
                     <span class="category-title"><i class="fas fa-star"></i> Gerente</span>
-                    <span class="category-count"><i class="fas fa-users"></i> 1 membro</span>
+                    <span class="category-count"><i class="fas fa-users"></i> 0 membros</span>
                 </div>
                 <div class="staffs-grid">
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="https://minotar.net/armor/bust/Herobrine/130.png" alt="Gerente">
+                    <div class="staff-card" style="opacity:0.5; border-style:dashed;">
+                        <div class="staff-avatar" style="border-color:var(--border);">
+                            <i class="fas fa-user-plus" style="font-size:2rem; color:var(--text-muted);"></i>
                         </div>
-                        <span class="staff-name">Herobrine</span>
+                        <span class="staff-name" style="color:var(--text-muted);">Vago</span>
                     </div>
                 </div>
             </div>

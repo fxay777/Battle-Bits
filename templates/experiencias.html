@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiências - Battle Bits</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a; --bg-card: #111111; --primary: #0d6efd; --primary-glow: rgba(13, 110, 253, 0.4);
+            --accent: #4fc3f7; --text: #e0e0e0; --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.06); --border-light: rgba(255, 255, 255, 0.1);
+            --radius-sm: 10px; --radius: 16px; --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(13, 110, 253, 0.05) 0%, transparent 55%);
+            color: var(--text); font-family: 'Poppins', sans-serif; line-height: 1.6;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border); transition: var(--transition); padding: 0 20px;
+        }
+        .navbar.scrolled { background: rgba(10, 10, 10, 0.95); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6); }
+        .nav-container { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+        .nav-logo {
+            font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .nav-logo i { background: none; -webkit-text-fill-color: var(--primary); font-size: 1.6rem; }
+        .nav-menu { display: flex; list-style: none; gap: 6px; align-items: center; }
+        .nav-link {
+            color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            padding: 10px 16px; border-radius: 50px; transition: var(--transition); display: flex; align-items: center; gap: 6px;
+        }
+        .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--accent); }
+        .nav-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        .btn-login {
+            background: var(--primary) !important; color: #fff !important; font-weight: 600;
+            padding: 10px 22px !important; box-shadow: 0 0 20px var(--primary-glow); transition: var(--transition);
+            border-radius: 50px; text-decoration: none; cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-login:hover { background: #0b5ed7 !important; }
+        .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 1001; }
+        .hamburger .bar { width: 26px; height: 3px; background: #fff; border-radius: 3px; transition: var(--transition); }
+        @media (max-width: 900px) {
+            .nav-menu {
+                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+                background: rgba(10, 10, 10, 0.96); backdrop-filter: blur(20px);
+                flex-direction: column; align-items: flex-start; padding: 90px 30px 30px; gap: 8px; transition: 0.4s ease;
+                border-left: 1px solid var(--border);
+            }
+            .nav-menu.active { right: 0; }
+            .hamburger { display: flex; }
+            .nav-link { font-size: 1rem; padding: 14px 18px; width: 100%; border-radius: 10px; }
+        }
+
+        /* ============ CONTEÚDO ============ */
+        .exp-section { padding: 120px 20px 60px; flex: 1; display: flex; justify-content: center; }
+        .exp-container { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 22px; }
+
+        .exp-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+        .exp-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .exp-title i { color: var(--primary); }
+        .exp-subtitle { color: var(--text-muted); font-size: 0.88rem; margin-top: 4px; }
+        .btn-nova {
+            background: var(--primary); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 50px;
+            font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 18px var(--primary-glow); transition: var(--transition); white-space: nowrap;
+        }
+        .btn-nova:hover { background: #0b5ed7; box-shadow: 0 0 28px rgba(13, 110, 253, 0.6); }
+
+        /* Abas Todos / Seguindo */
+        .exp-tabs { display: flex; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50px; padding: 5px; width: fit-content; }
+        .exp-tab {
+            padding: 9px 20px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.82rem;
+            color: var(--text-muted); transition: var(--transition);
+        }
+        .exp-tab.ativo { background: var(--primary); color: #fff; box-shadow: 0 0 12px var(--primary-glow); }
+        .exp-tab:hover:not(.ativo) { color: #fff; }
+
+        /* Widget de quem você segue */
+        .seguindo-widget { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+        .seguindo-widget-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .seguindo-widget-title i { color: var(--primary); }
+        .seguindo-avatares { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+        .seguindo-chip { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; flex-shrink: 0; width: 62px; }
+        .seguindo-chip img, .seguindo-chip .chip-ph {
+            width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-light);
+            background: #1a1a1a; display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+        }
+        .seguindo-chip span { font-size: 0.7rem; color: #fff; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+        .seguindo-vazio { font-size: 0.82rem; color: var(--text-muted); }
+        .seguindo-vazio a { color: var(--accent); }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--bg-card);
+            border: 1px dashed var(--border-light); border-radius: var(--radius);
+        }
+        .empty-state i { font-size: 2.2rem; color: var(--primary); margin-bottom: 14px; display: block; }
+
+        .exp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .exp-card-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
+        .exp-avatar, .exp-avatar-ph {
+            width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #1a1a1a;
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0;
+        }
+        .exp-author { color: #fff; font-weight: 700; text-decoration: none; font-size: 0.92rem; }
+        .exp-author:hover { color: var(--accent); }
+        .exp-meta-line { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .exp-tipo-badge {
+            font-size: 0.68rem; font-weight: 700; padding: 2px 10px; border-radius: 50px; text-transform: uppercase;
+        }
+        .tipo-story { background: rgba(79, 195, 247, 0.15); color: var(--accent); }
+        .tipo-video { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .btn-seguir-mini {
+            margin-left: auto; background: rgba(13, 110, 253, 0.12); color: var(--accent); border: 1px solid rgba(13, 110, 253, 0.3);
+            padding: 7px 16px; border-radius: 50px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn-seguir-mini:hover { background: rgba(13, 110, 253, 0.22); }
+        .btn-seguir-mini.seguindo-ja { background: transparent; border-color: var(--border-light); color: var(--text-muted); }
+
+        .exp-media img { width: 100%; max-height: 520px; object-fit: cover; display: block; }
+        .exp-video-embed { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+        .exp-video-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .exp-video-link {
+            display: flex; align-items: center; justify-content: center; gap: 10px; padding: 40px 20px;
+            background: rgba(255,255,255,0.02); color: var(--accent); text-decoration: none; font-weight: 600;
+        }
+        .exp-video-link:hover { background: rgba(255,255,255,0.05); }
+
+        .exp-card-body { padding: 16px 18px; }
+        .exp-card-title { font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .exp-card-text { font-size: 0.88rem; color: var(--text); line-height: 1.6; }
+
+        .exp-card-footer { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .btn-curtir {
+            background: transparent; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: var(--transition); font-weight: 600;
+        }
+        .btn-curtir:hover { color: #ff6b8a; }
+        .btn-curtir.curtido { color: #ef4444; }
+        .btn-curtir i { font-size: 1rem; }
+        .btn-excluir-exp {
+            background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; transition: var(--transition);
+        }
+        .btn-excluir-exp:hover { color: #ef4444; }
+
+        .main-footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 24px 20px; margin-top: auto; }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; gap: 10px;
+        }
+        .footer-bottom i { color: var(--primary); opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Battle Bits</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Início</a></li>
+                <li><a href="/vips" class="nav-link">VIPs</a></li>
+                <li><a href="/forum" class="nav-link">Fórum</a></li>
+                <li><a href="/staffs" class="nav-link">Staffs</a></li>
+                <li><a href="/experiencias" class="nav-link active">Experiências</a></li>
+                <li><a href="/carrinho" class="nav-link"><i class="fas fa-shopping-cart"></i></a></li>
+                {% if session.get('username') %}
+                <li><a href="/perfil/{{ session.get('username') }}" class="nav-link" style="display:flex;align-items:center;gap:6px;">{% if avatar_url %}<img src="{{ avatar_url }}" class="nav-avatar">{% else %}<i class="fas fa-user-circle"></i>{% endif %} {{ session.get('username') }}</a></li>
+                <li><a href="/logout" class="nav-link" title="Sair da conta"><i class="fas fa-sign-out-alt"></i></a></li>
+                {% else %}
+                <li><a href="/login" class="nav-link btn-login">Entrar</a></li>
+                {% endif %}
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="exp-section">
+        <div class="exp-container">
+            <div class="exp-header">
+                <div>
+                    <div class="exp-title"><i class="fas fa-clapperboard"></i> Experiências</div>
+                    <div class="exp-subtitle">Stories e vídeos dos jogadores mostrando como é o servidor</div>
+                </div>
+                {% if session.get('username') %}
+                    <a href="/experiencias/nova" class="btn-nova"><i class="fas fa-plus"></i> Postar a minha</a>
+                {% else %}
+                    <a href="/login" class="btn-nova"><i class="fas fa-lock"></i> Entre para postar</a>
+                {% endif %}
+            </div>
+
+            {% if session.get('username') %}
+            <div class="exp-tabs">
+                <a href="/experiencias?aba=todos" class="exp-tab {{ 'ativo' if aba == 'todos' else '' }}">Todos</a>
+                <a href="/experiencias?aba=seguindo" class="exp-tab {{ 'ativo' if aba == 'seguindo' else '' }}">Seguindo</a>
+            </div>
+
+            <div class="seguindo-widget">
+                <div class="seguindo-widget-title"><i class="fas fa-user-group"></i> Quem você segue</div>
+                {% if seguindo_lista|length == 0 %}
+                    <div class="seguindo-vazio">Você ainda não segue ninguém. Siga jogadores nos perfis pra ver as experiências deles aqui primeiro.</div>
+                {% else %}
+                    <div class="seguindo-avatares">
+                        {% for u in seguindo_lista %}
+                        <a class="seguindo-chip" href="/perfil/{{ u.username }}">
+                            {% if u.avatar %}<img src="/static/uploads/avatars/{{ u.avatar }}">{% else %}<div class="chip-ph"><i class="fas fa-user"></i></div>{% endif %}
+                            <span>{{ u.username }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if itens|length == 0 %}
+                <div class="empty-state">
+                    <i class="fas fa-film"></i>
+                    {% if aba == 'seguindo' %}
+                        Ninguém que você segue postou uma experiência ainda.
+                    {% else %}
+                        Ainda não tem nenhuma experiência postada.<br>Seja o primeiro a mostrar como é o servidor!
+                    {% endif %}
+                </div>
+            {% else %}
+                {% for item in itens %}
+                {% set exp = item.exp %}
+                <div class="exp-card">
+                    <div class="exp-card-header">
+                        {% if exp.user_avatar %}
+                            <img src="/static/uploads/avatars/{{ exp.user_avatar }}" class="exp-avatar">
+                        {% else %}
+                            <div class="exp-avatar-ph"><i class="fas fa-user"></i></div>
+                        {% endif %}
+                        <div>
+                            <a href="/perfil/{{ exp.username }}" class="exp-author">{{ exp.username }}</a>
+                            <div class="exp-meta-line">
+                                <span class="exp-tipo-badge {{ 'tipo-story' if exp.tipo == 'story' else 'tipo-video' }}">
+                                    {{ 'Story' if exp.tipo == 'story' else 'Vídeo' }}
+                                </span>
+                                <span>{{ exp.created_at[:16].replace('T', ' às ') }}</span>
+                            </div>
+                        </div>
+                        {% if session.get('username') and not item.eh_meu_post %}
+                        <form method="POST" action="/perfil/{{ exp.username }}/seguir" style="margin-left:auto;">
+                            <input type="hidden" name="proximo" value="/experiencias?aba={{ aba }}">
+                            <button type="submit" class="btn-seguir-mini {{ 'seguindo-ja' if item.ja_segue_autor else '' }}">
+                                {% if item.ja_segue_autor %}<i class="fas fa-check"></i> Seguindo{% else %}<i class="fas fa-plus"></i> Seguir{% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <div class="exp-media">
+                        {% if exp.tipo == 'story' and exp.imagem %}
+                            <img src="/static/uploads/experiencias/{{ exp.imagem }}" alt="{{ exp.titulo }}">
+                        {% elif exp.tipo == 'video' and item.youtube_id %}
+                            <div class="exp-video-embed">
+                                <iframe src="https://www.youtube.com/embed/{{ item.youtube_id }}" allowfullscreen></iframe>
+                            </div>
+                        {% elif exp.tipo == 'video' and exp.video_url %}
+                            <a href="{{ exp.video_url }}" target="_blank" rel="noopener" class="exp-video-link">
+                                <i class="fas fa-circle-play" style="font-size:1.4rem;"></i> Assistir vídeo
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="exp-card-body">
+                        <div class="exp-card-title">{{ exp.titulo }}</div>
+                        {% if exp.texto %}<div class="exp-card-text">{{ exp.texto }}</div>{% endif %}
+                    </div>
+
+                    <div class="exp-card-footer">
+                        <button type="button" class="btn-curtir {{ 'curtido' if item.curtiu else '' }}" onclick="curtir({{ exp.id }}, this)" data-id="{{ exp.id }}">
+                            <i class="fa-heart {{ 'fas' if item.curtiu else 'far' }}"></i>
+                            <span class="curtir-total">{{ item.likes }}</span>
+                        </button>
+                        {% if session.get('username') == exp.username or is_admin %}
+                        <form method="POST" action="/experiencias/{{ exp.id }}/excluir" onsubmit="return confirm('Excluir essa experiência?');">
+                            <button type="submit" class="btn-excluir-exp"><i class="fas fa-trash"></i> Excluir</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>Todos os direitos reservados - Battle Bits © 2026</p>
+            <i class="fas fa-server"></i>
+        </div>
+    </footer>
+
+    {% include 'botpress_widget.html' %}
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        function curtir(expId, btn) {
+            fetch(`/experiencias/${expId}/curtir`, { method: 'POST' })
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                        return null;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    const icone = btn.querySelector('i');
+                    const total = btn.querySelector('.curtir-total');
+                    total.textContent = data.total;
+                    if (data.curtiu) {
+                        btn.classList.add('curtido');
+                        icone.classList.remove('far');
+                        icone.classList.add('fas');
+                    } else {
+                        btn.classList.remove('curtido');
+                        icone.classList.remove('fas');
+                        icone.classList.add('far');
+                    }
+                })
+                .catch(() => {});
+        }
+    </script>
+</body>
+</html>

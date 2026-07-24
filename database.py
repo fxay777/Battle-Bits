@@ -68,12 +68,41 @@ def init_db():
         )
     ''')
 
+    # Tabela de experiências (stories/vídeos que os jogadores postam mostrando o servidor)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS experiencias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            tipo TEXT NOT NULL,
+            titulo TEXT,
+            texto TEXT,
+            imagem TEXT,
+            video_url TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+
+    # Tabela de curtidas nas experiências
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS experiencia_likes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            experiencia_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            created_at TEXT NOT NULL,
+            UNIQUE(experiencia_id, user_id),
+            FOREIGN KEY(experiencia_id) REFERENCES experiencias(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+
     # Colunas extras de perfil/segurança (adicionadas depois - protegido para bancos já existentes)
     for coluna, tipo in [
         ('avatar', 'TEXT'),
         ('totp_secret', 'TEXT'),
         ('totp_enabled', 'BOOLEAN DEFAULT 0'),
         ('cargo', "TEXT DEFAULT 'Membro'"),
+        ('pode_gerenciar_cargos', 'BOOLEAN DEFAULT 0'),
     ]:
         try:
             cursor.execute(f'ALTER TABLE users ADD COLUMN {coluna} {tipo}')
@@ -184,6 +213,14 @@ def disable_totp(user_id):
     conn.close()
 
 
+def set_permissao_cargos(user_id, valor):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET pode_gerenciar_cargos = ? WHERE id = ?", (1 if valor else 0, user_id))
+    conn.commit()
+    conn.close()
+
+
 def set_user_cargo(user_id, cargo):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -286,6 +323,143 @@ def get_following(user_id):
     result = cursor.fetchall()
     conn.close()
     return result
+
+
+def create_experiencia(user_id, tipo, titulo, texto, imagem=None, video_url=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        '''INSERT INTO experiencias (user_id, tipo, titulo, texto, imagem, video_url, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)''',
+        (user_id, tipo, titulo, texto, imagem, video_url, datetime.now().isoformat())
+    )
+    conn.commit()
+    exp_id = cursor.lastrowid
+    conn.close()
+    return exp_id
+
+
+def get_all_experiencias():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT experiencias.*, users.username, users.avatar as user_avatar, users.cargo
+        FROM experiencias
+        JOIN users ON users.id = experiencias.user_id
+        ORDER BY experiencias.id DESC
+    ''')
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_experiencias_seguindo(user_id):
+    """Só as experiências de quem o usuário segue (+ as dele próprio)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT experiencias.*, users.username, users.avatar as user_avatar, users.cargo
+        FROM experiencias
+        JOIN users ON users.id = experiencias.user_id
+        WHERE experiencias.user_id = ?
+           OR experiencias.user_id IN (SELECT following_id FROM follows WHERE follower_id = ?)
+        ORDER BY experiencias.id DESC
+    ''', (user_id, user_id))
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def toggle_like_experiencia(experiencia_id, user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT 1 FROM experiencia_likes WHERE experiencia_id = ? AND user_id = ?",
+        (experiencia_id, user_id)
+    )
+    ja_curtiu = cursor.fetchone() is not None
+
+    if ja_curtiu:
+        cursor.execute(
+            "DELETE FROM experiencia_likes WHERE experiencia_id = ? AND user_id = ?",
+            (experiencia_id, user_id)
+        )
+    else:
+        cursor.execute(
+            "INSERT INTO experiencia_likes (experiencia_id, user_id, created_at) VALUES (?, ?, ?)",
+            (experiencia_id, user_id, datetime.now().isoformat())
+        )
+    conn.commit()
+    conn.close()
+    return not ja_curtiu  # True se acabou de curtir, False se descurtiu
+
+
+def get_likes_experiencias(user_id=None):
+    """Retorna dict {experiencia_id: total_curtidas} e o set de ids que o user_id curtiu."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT experiencia_id, COUNT(*) as total FROM experiencia_likes GROUP BY experiencia_id")
+    totais = {row['experiencia_id']: row['total'] for row in cursor.fetchall()}
+
+    curtidas_usuario = set()
+    if user_id:
+        cursor.execute("SELECT experiencia_id FROM experiencia_likes WHERE user_id = ?", (user_id,))
+        curtidas_usuario = {row['experiencia_id'] for row in cursor.fetchall()}
+
+    conn.close()
+    return totais, curtidas_usuario
+
+
+def get_experiencias_por_username(username):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT experiencias.*, users.username, users.avatar as user_avatar, users.cargo
+        FROM experiencias
+        JOIN users ON users.id = experiencias.user_id
+        WHERE LOWER(users.username) = LOWER(?)
+        ORDER BY experiencias.id DESC
+    ''', (username,))
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_experiencias_by_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT experiencias.*, users.username, users.avatar as user_avatar, users.cargo
+        FROM experiencias
+        JOIN users ON users.id = experiencias.user_id
+        WHERE experiencias.user_id = ?
+        ORDER BY experiencias.id DESC
+    ''', (user_id,))
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_experiencia_by_id(exp_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT experiencias.*, users.username, users.avatar as user_avatar, users.cargo
+        FROM experiencias
+        JOIN users ON users.id = experiencias.user_id
+        WHERE experiencias.id = ?
+    ''', (exp_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result
+
+
+def delete_experiencia(exp_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM experiencias WHERE id = ?", (exp_id,))
+    conn.commit()
+    conn.close()
 
 
 def create_purchase(user_id, items_json, total_price, payment_method, status="pending", preference_id=None, buyer_email=None):
